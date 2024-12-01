@@ -7,7 +7,7 @@ use App\Http\Controllers\Resort\MenuController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Resort\CategoryController;
-use App\Http\Controllers\resort\dashboard;
+use App\Http\Controllers\Resort\dashboard;
 use App\Http\Controllers\Resort\EventBookingController;
 use App\Http\Controllers\Resort\EventController;
 use App\Http\Controllers\Resort\ImageController;

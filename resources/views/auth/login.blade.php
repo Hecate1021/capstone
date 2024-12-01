@@ -47,19 +47,27 @@
                         </button>
 
                         <a href="{{ route('auth.google') }}"
-    class="flex items-center justify-center w-full px-4 py-2 mt-4 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg active:bg-transparent hover:border-gray-500 focus:border-gray-500 active:text-gray-500 focus:outline-none focus:shadow-outline-gray">
-    <span class="w-8 h-8 mr-2">
-        <svg width="30px" height="30px" viewBox="-408.69 -408.69 2094.53 2094.53" xmlns="http://www.w3.org/2000/svg" fill="#000000" stroke="#000000" stroke-width="10.217192">
-            <path d="M1179.439 7.087c57.543 0 104.627 47.083 104.627 104.626v30.331l-145.36 103.833-494.873 340.894L148.96 242.419v688.676h-37.247c-57.543 0-104.627-47.082-104.627-104.625V111.742C7.086 54.198 54.17 7.115 111.713 7.115l532.12 394.525L1179.41 7.115l.029-.028z" fill="#e75a4d"></path>
-            <path fill="url(#a)" d="M111.713 7.087l532.12 394.525L1179.439 7.087z"></path>
-            <path fill="#e7e4d7" d="M148.96 242.419v688.676h989.774V245.877L643.833 586.771z"></path>
-            <path fill="#b8b7ae" d="M148.96 931.095l494.873-344.324-2.24-1.586L148.96 923.527z"></path>
-            <path fill="#b7b6ad" d="M1138.734 245.877l.283 685.218-495.184-344.324z"></path>
-            <path d="M1284.066 142.044l.17 684.51c-2.494 76.082-35.461 103.238-145.219 104.514l-.283-685.219 145.36-103.833-.028.028z" fill="#b2392f"></path>
-        </svg>
-    </span>
-    Login with Gmail
-</a>
+                            class="flex items-center justify-center w-full px-4 py-2 mt-4 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg active:bg-transparent hover:border-gray-500 focus:border-gray-500 active:text-gray-500 focus:outline-none focus:shadow-outline-gray">
+                            <span class="w-8 h-8 mr-2">
+                                <svg width="30px" height="30px" viewBox="-408.69 -408.69 2094.53 2094.53"
+                                    xmlns="http://www.w3.org/2000/svg" fill="#000000" stroke="#000000"
+                                    stroke-width="10.217192">
+                                    <path
+                                        d="M1179.439 7.087c57.543 0 104.627 47.083 104.627 104.626v30.331l-145.36 103.833-494.873 340.894L148.96 242.419v688.676h-37.247c-57.543 0-104.627-47.082-104.627-104.625V111.742C7.086 54.198 54.17 7.115 111.713 7.115l532.12 394.525L1179.41 7.115l.029-.028z"
+                                        fill="#e75a4d"></path>
+                                    <path fill="url(#a)" d="M111.713 7.087l532.12 394.525L1179.439 7.087z"></path>
+                                    <path fill="#e7e4d7" d="M148.96 242.419v688.676h989.774V245.877L643.833 586.771z">
+                                    </path>
+                                    <path fill="#b8b7ae" d="M148.96 931.095l494.873-344.324-2.24-1.586L148.96 923.527z">
+                                    </path>
+                                    <path fill="#b7b6ad" d="M1138.734 245.877l.283 685.218-495.184-344.324z"></path>
+                                    <path
+                                        d="M1284.066 142.044l.17 684.51c-2.494 76.082-35.461 103.238-145.219 104.514l-.283-685.219 145.36-103.833-.028.028z"
+                                        fill="#b2392f"></path>
+                                </svg>
+                            </span>
+                            Login with Gmail
+                        </a>
 
 
 
