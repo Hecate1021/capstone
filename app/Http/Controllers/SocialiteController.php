@@ -12,38 +12,38 @@ use Illuminate\Support\Facades\Hash;
 class SocialiteController extends Controller
 {
 
-    public function google()
+    public function authProviderRedirect($provider)
     {
-        return Socialite::driver('google')->redirect();
+        if ($provider) {
+            return Socialite::driver($provider)->redirect();
+        }
+        abort(404);
     }
 
-    public function callback()
+    public function socialAuthentication($provider)
     {
-        try{
+        try {
 
             $googleUser = Socialite::driver('google')->user();
-        $user = User::where('google_id', $googleUser->id)->first();
-        if ($user) {
-            Auth::login($user);
-            return redirect()->route('balai');
-        } else {
-            $userData = User::create([
-                'name' => $googleUser -> name,
-                'email' => $googleUser ->email,
-                'password' => Hash::make('Password@1234'),
-                'google_id' => $googleUser -> id,
-            ]);
-
-            if ($userData) {
-                Auth::login($userData);
+            $user = User::where('google_id', $googleUser->id)->first();
+            if ($user) {
+                Auth::login($user);
                 return redirect()->route('balai');
-            }
-        }
+            } else {
+                $userData = User::create([
+                    'name' => $googleUser->name,
+                    'email' => $googleUser->email,
+                    'password' => Hash::make('Password@1234'),
+                    'google_id' => $googleUser->id,
+                ]);
 
-        } catch(Exception $e){
+                if ($userData) {
+                    Auth::login($userData);
+                    return redirect()->route('balai');
+                }
+            }
+        } catch (Exception $e) {
             dd($e);
         }
-
-
     }
 }

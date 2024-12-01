@@ -56,8 +56,8 @@ Route::post('/review/submit/{booking_id}', [ReviewController::class, 'submit'])-
 Route::get('/post/{id}', [PostController::class, 'viewpost'])->name('viewpost');
 /**Google Auth */
 Route::controller(SocialiteController::class)->group(function(){
-    Route::get('/auth/google', [SocialiteController::class, 'google'])->name('auth.google');
-    Route::get('/auth/google-callback', [SocialiteController::class, 'callback'])->name('auth.google-callback');
+    Route::get('auth/redirection/{provider}', 'authProviderRedirect')->name('auth.redirection');
+    Route::get('auth/{provider}/callback', 'socialAuthentication')->name('auth.callback');
 });
 
 
