@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
+use Laravel\Socialite\Facades\Socialite;
 
 class UserController extends Controller
 {
@@ -103,6 +104,7 @@ class UserController extends Controller
         $authUserId = auth()->id(); // Get the logged-in user's ID
 
         if (auth()->check()) {
+            // Retrieve all users who have messages with the authenticated user
             $users = User::where('id', '!=', $authUserId)
                 ->whereHas('messages', function ($query) use ($authUserId) {
                     $query->where('sender_id', $authUserId)
@@ -111,6 +113,7 @@ class UserController extends Controller
                 ->with('userInfo')
                 ->get()
                 ->map(function ($user) use ($authUserId) {
+                    // Add unread messages count for each user
                     $user->unread_messages_count = Message::where('sender_id', $user->id)
                         ->where('receiver_id', $authUserId)
                         ->where('is_read', false)
@@ -118,28 +121,54 @@ class UserController extends Controller
                     return $user;
                 });
 
+            // Calculate the total unread messages for the authenticated user
             $totalUnreadMessages = Message::where('receiver_id', $authUserId)
                 ->where('is_read', false)
                 ->count();
         } else {
+            // If user is not authenticated, return empty collections and zero unread messages
             $users = collect();
             $totalUnreadMessages = 0;
         }
 
+        // Fetch the resort user by ID with related user info
         $user = User::where('id', $id)
             ->where('role', 'resort')
             ->with('userInfo')
             ->firstOrFail();
 
+        // Fetch the rooms of the resort with their images
         $rooms = Room::with('images')->where('user_id', $user->id)->get();
+
+        // Fetch all events with their images
         $events = Events::with('eventImages')->get();
+
+        // Fetch all categories with their subcategories and related menus/images
         $categories = Category::with('subcategories.menus.images')->get();
+
+        // Fetch reviews for the resort with pagination
         $reviews = Review::with('user.userInfo')->paginate(10);
 
         // Calculate the average rating for the resort
         $averageRating = Review::where('resort_id', $id)->avg('rating');
 
-        return view('index', compact('user', 'rooms', 'users', 'events', 'categories', 'reviews', 'totalUnreadMessages', 'averageRating'));
+        // Fetch posts associated with the resort
+        $posts = Post::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc') // Optional: Order by most recent
+            ->get();
+
+        // Return the data to the view
+        return view('index', compact(
+            'user',
+            'rooms',
+            'users',
+            'events',
+            'categories',
+            'reviews',
+            'totalUnreadMessages',
+            'averageRating',
+            'posts'
+        ));
     }
 
 
@@ -277,4 +306,5 @@ class UserController extends Controller
     {
         return view('mobileview.profile');
     }
+
 }

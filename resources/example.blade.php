@@ -6,11 +6,6 @@
     @endif
 
     <style>
-        .banner_area {
-            position: relative;
-            overflow: hidden;
-        }
-
         .banner_area::before {
             content: '';
             position: absolute;
@@ -18,31 +13,41 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Black overlay with transparency */
-            z-index: 1; /* Overlay sits above the background image */
+            background: rgba(0, 0, 0, 0.5);
+            /* Adjust opacity to make it darker/lighter */
+            z-index: -1;
+            /* Keep the overlay behind the content */
         }
 
+        /* Overlay Styling */
         .overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0; /* Background image stays behind everything */
+            z-index: 0;
+            /* Ensure background image is behind text */
             pointer-events: none;
+            /* Prevent the overlay from blocking interactions */
         }
 
         .overlay img.background-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            /* Makes the image cover the entire area */
         }
 
+        /* Banner Content Styling */
         .banner_content {
             position: relative;
-            z-index: 2; /* Ensure content is above the overlay */
+            z-index: 2;
+            /* Ensure text appears above the background */
             color: #fff;
-            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.7); /* Enhanced text shadow for readability */
+            /* White text for visibility */
+            text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.5);
+            /* Optional: Add a shadow for better readability */
         }
 
         .logo-text {
@@ -76,7 +81,8 @@
         }
     </style>
 
-    <section class="banner_area">
+
+    <section class="banner_area" style="position: relative; overflow: hidden;">
         <div class="booking_table d_flex align-items-center">
             <!-- Background Image -->
             <div class="overlay">
@@ -109,6 +115,7 @@
             </div>
         </div>
     </section>
+
 
     <!--================Banner Area =================-->
     <div class="">
@@ -388,8 +395,8 @@
                         <div class="container">
                             <div class="section_title text-center">
                                 <h2 class="title_color">Menus</h2>
-                                {{-- <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
-                                    fast,</p> --}}
+                                <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
+                                    fast,</p>
                             </div>
 
                             <!-- Loop through each category -->
@@ -449,7 +456,6 @@
                             @endforeach
                         </div>
                     </section>
-
                     {{-- Timeline Section --}}
                     <div class="section_title text-center">
                         <h2 class="title_color">Timeline</h2>
@@ -459,7 +465,7 @@
                             @foreach ($posts->take(8) as $post)
                                 <!-- Limit to latest 8 posts -->
                                 <!-- Post Card -->
-                                <div class="card shadow-sm mb-4 mx-auto" style="max-width: 70%; border:none;">
+                                <div class="card shadow-sm mb-4 mx-auto" style="max-width: 70%;">
                                     <div class="card-body">
                                         <!-- User Info with Three-Dot Menu -->
                                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -618,6 +624,8 @@
                         @endif
                     </div>
 
+
+
                     <!--================ Testimonial Area  =================-->
                     <div class="comments-area">
                         <h4>{{ $reviews->total() }} Review{{ $reviews->total() > 1 ? 's' : '' }}</h4>
@@ -672,30 +680,16 @@
                     <section class="accomodation_area section_gap">
                         <div class="container">
                             <div class="section_title text-center">
-                                <h2 class="title_color">Resort Accommodation</h2>
-                                {{-- <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
-                                    fast,</p> --}}
+                                <h2 class="title_color">Resort Accomodation</h2>
+                                <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
+                                    fast, </p>
                             </div>
-                            <style>
-                                .row1 {
-                                    display: -ms-flexbox;
-                                    display: flex;
-                                    -ms-flex-wrap: wrap;
-                                    flex-wrap: wrap;
-                                    margin-right: -15px;
-                                    margin-left: -15px;
-                                    flex-direction: row;
-                                    justify-content: center;
-                                    align-content: stretch;
-                                }
-                            </style>
-                            <div class="row1 mb_30 room-slider">
+                            <div class="row mb_30">
                                 @foreach ($rooms as $room)
                                     @if ($room->status !== 'offline')
                                         <!-- Check if room status is not 'offline' -->
-                                        <div class="col-lg-3 col-sm-6 room-item">
+                                        <div class="col-lg-3 col-sm-6">
                                             <div class="accomodation_item text-center">
-                                                <!-- Initialize Owl Carousel for individual room images -->
                                                 <div class="owl-carousel hotel_img">
                                                     @foreach ($room->images as $image)
                                                         <div>
@@ -716,6 +710,7 @@
                                         </div>
                                     @endif
                                 @endforeach
+
                             </div>
 
                         </div>
@@ -802,8 +797,8 @@
                         <div class="container">
                             <div class="section_title text-center">
                                 <h2 class="title_color">Menus</h2>
-                                {{-- <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
-                                    fast,</p> --}}
+                                <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
+                                    fast,</p>
                             </div>
 
                             <!-- Loop through each category -->
@@ -912,13 +907,12 @@
                         </nav>
                     </div>
                 </div>
-
+                <!-- Timeline -->
                 <div class="tab-pane fade" id="Timeline" role="tabpanel" aria-labelledby="timeline-tab">
                     <div class="comments-area">
                         <div class="section_title text-center">
                             <h2 class="title_color">Timeline</h2>
                         </div>
-
                         <div class="container py-4">
                             @if ($posts->isNotEmpty())
                                 @foreach ($posts as $post)
@@ -938,10 +932,11 @@
                                                         </small>
                                                     </div>
                                                 </div>
-                                            </div>
 
+                                            </div>
                                             <!-- Post Content -->
-                                            <a href="{{ route('viewpost', $post->id) }}" class="text-decoration-none text-dark">
+                                            <a href="{{ route('viewpost', $post->id) }}"
+                                                class="text-decoration-none text-dark">
                                                 <p class="mb-3">{{ $post->content }}</p>
 
                                                 <!-- Post Images -->
@@ -950,7 +945,8 @@
                                                         <!-- One Media -->
                                                         <div class="col-12">
                                                             @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                <video controls class="w-100 rounded" style="height: auto;">
+                                                                <video controls class="w-100 rounded"
+                                                                    style="height: auto;">
                                                                     <source
                                                                         src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
                                                                         type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
@@ -1077,16 +1073,59 @@
                                                             @endforeach
                                                         </div>
                                                     @endif
+
                                                 </div>
-                                            </a>
+
+                                                <style>
+                                                    .position-relative {
+                                                        position: relative;
+                                                        /* Ensure the overlay is properly placed */
+                                                    }
+
+                                                    .overlay {
+                                                        position: absolute;
+                                                        top: 0;
+                                                        left: 0;
+                                                        width: 100%;
+                                                        height: 100%;
+                                                        background-color: rgba(0, 0, 0, 0.5);
+                                                        color: white;
+                                                        display: flex;
+                                                        align-items: center;
+                                                        justify-content: center;
+                                                        font-size: 1.5rem;
+                                                        font-weight: bold;
+                                                        border-radius: 0.375rem;
+                                                        /* Matches Bootstrap's "rounded" class */
+                                                        z-index: 10;
+                                                        /* Make sure it appears on top of the image */
+                                                    }
+
+                                                    .media-container {
+                                                        height: 200px;
+                                                        /* Set desired height for media */
+                                                        overflow: hidden;
+                                                        display: flex;
+                                                        align-items: center;
+                                                        justify-content: center;
+                                                    }
+
+                                                    .media-container img,
+                                                    .media-container video {
+                                                        height: 100%;
+                                                        width: auto;
+                                                        object-fit: cover;
+                                                    }
+                                                </style>
+
                                         </div>
+                                        </a>
                                     </div>
                                 @endforeach
                             @else
                                 <p class="text-center text-muted">No posts available.</p>
                             @endif
                         </div>
-
 
                     </div>
                 </div>

@@ -6,7 +6,6 @@ use App\Http\Controllers\FoodController;
 use App\Http\Controllers\Resort\MenuController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PushNoticationController;
 use App\Http\Controllers\Resort\CategoryController;
 use App\Http\Controllers\resort\dashboard;
 use App\Http\Controllers\Resort\EventBookingController;
@@ -18,10 +17,12 @@ use App\Http\Controllers\Resort\RoomController;
 use App\Http\Controllers\Resort\SubcategoryController;
 use App\Http\Controllers\Resort\UploadTemporaryImageController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\User\BookingController;
 use App\Http\Controllers\User\UserController;
 use App\Models\Review;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +54,13 @@ Route::get('/review/create/{booking_id}', [ReviewController::class, 'create'])->
 Route::post('/review/submit/{booking_id}', [ReviewController::class, 'submit'])->name('reviews.submit');
 
 Route::get('/post/{id}', [PostController::class, 'viewpost'])->name('viewpost');
+/**Google Auth */
+Route::controller(SocialiteController::class)->group(function(){
+    Route::get('/auth/google', [SocialiteController::class, 'google'])->name('auth.google');
+    Route::get('/auth/google-callback', [SocialiteController::class, 'callback'])->name('auth.google-callback');
+});
+
+
 //user
 Route::middleware(['auth', 'PreventBackHistory', 'verified'])->group(function () {
 

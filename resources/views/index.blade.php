@@ -6,6 +6,11 @@
     @endif
 
     <style>
+        .banner_area {
+            position: relative;
+            overflow: hidden;
+        }
+
         .banner_area::before {
             content: '';
             position: absolute;
@@ -13,20 +18,72 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            /* Adjust opacity to make it darker/lighter */
-            z-index: -1;
-            /* Keep the overlay behind the content */
+            background: rgba(0, 0, 0, 0.5); /* Black overlay with transparency */
+            z-index: 1; /* Overlay sits above the background image */
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Background image stays behind everything */
+            pointer-events: none;
+        }
+
+        .overlay img.background-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .banner_content {
+            position: relative;
+            z-index: 2; /* Ensure content is above the overlay */
+            color: #fff;
+            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.7); /* Enhanced text shadow for readability */
+        }
+
+        .logo-text {
+            font-size: 2em;
+            text-align: center;
+            margin-top: -20px;
+            color: #fff;
+        }
+
+        .rating-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .stars {
+            display: inline-block;
+            font-size: 2em;
+            color: lightgray;
+            position: relative;
+            letter-spacing: 5px;
+        }
+
+        .stars::before {
+            content: "★★★★★";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: calc(var(--rating) / 5 * 100%);
+            color: gold;
+            overflow: hidden;
         }
     </style>
 
-
-    <!--================Banner Area =================-->
     <section class="banner_area">
         <div class="booking_table d_flex align-items-center">
-            <div class="overlay banner_area" style="background: url('{{ asset('images/background.png') }}')"
-                data-stellar-ratio="0.9" data-stellar-vertical-offset="0" data-background=""></div>
+            <!-- Background Image -->
+            <div class="overlay">
+                <img src="{{ asset('images/background.png') }}" alt="Background Image" class="background-image" />
+            </div>
             <div class="container">
+                <!-- Banner Content -->
                 <div class="banner_content text-center">
                     <h6></h6>
                     <h2 style="font-family: 'Alishah', cursive;">Sa Balai</h2>
@@ -35,39 +92,9 @@
                         <h3>Lake View Resort</h3>
                     </div>
 
-                    <style>
-                        /* General container styling */
-                        .logo-text {
-                            text-align: center;
-                            /* Centers the text */
-                            background: transparent;
-                            /* Transparent background */
-                            color: #ffffff;
-                            /* Green color for the text */
-                            font-weight: bold;
-                            /* Makes text bold */
-                            position: relative;
-                            /* Needed for absolute positioning of stroke */
-                            font-size: 2em;
-                            /* Adjust the font size if needed */
-                            margin-top: -20px;
-                        }
-
-                        /* Styling for the sub-title (h3) */
-                        .logo-text h3 {
-                            font-size: 1.5em;
-                            /* Smaller font size for subtitle */
-                            margin: 0;
-                            /* Removes default margins */
-                            font-weight: normal;
-                            /* Normal font weight for contrast with h2 */
-                            text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
-                            /* Softer shadow */
-                        }
-                    </style>
-
-
                     <p style="font-size:20px;">"A Taste of Your Own Home - Where the Ambiance Always Feels Like Home"</p>
+
+                    <!-- Ratings -->
                     <div class="rating-container">
                         <div class="stars" style="--rating: {{ $averageRating ?? 0 }};">
                             ★★★★★
@@ -75,40 +102,9 @@
                         <span class="rating-number">({{ number_format($averageRating, 1) ?? '0.0' }})</span>
                     </div>
 
-                    <style>
-                        /* Rating container styles */
-                        .rating-container {
-                            text-align: center;
-                            margin-bottom: 30px;
-                            display: inline-grid;
-                            font-family: Arial, sans-serif;
-                        }
-
-                        /* Stars container */
-                        .stars {
-                            display: inline-block;
-                            font-size: 2em;
-                            position: relative;
-                            color: lightgray;
-                            /* Base star color */
-                            letter-spacing: 5px;
-                        }
-
-                        /* Overlay active stars based on rating */
-                        .stars::before {
-                            content: "★★★★★";
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            width: calc(var(--rating) / 5 * 100%);
-                            /* Adjust width based on rating */
-                            color: gold;
-                            /* Active star color */
-                            overflow: hidden;
-                        }
-                    </style>
-                    <div><a href="{{ route('balai') }}" class="btn theme_btn button_hover">Get Started</a></div>
-
+                    <div>
+                        <a href="{{ route('balai') }}" class="btn theme_btn button_hover">Get Started</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -392,8 +388,8 @@
                         <div class="container">
                             <div class="section_title text-center">
                                 <h2 class="title_color">Menus</h2>
-                                <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
-                                    fast,</p>
+                                {{-- <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
+                                    fast,</p> --}}
                             </div>
 
                             <!-- Loop through each category -->
@@ -453,157 +449,174 @@
                             @endforeach
                         </div>
                     </section>
-                   {{-- Timeline Section --}}
-<div class="section_title text-center">
-    <h2 class="title_color">Timeline</h2>
-</div>
-<div class="container py-4">
-    @if ($posts->isNotEmpty())
-        @foreach ($posts->take(8) as $post) <!-- Limit to latest 8 posts -->
-            <!-- Post Card -->
-            <div class="card shadow-sm mb-4 mx-auto" style="max-width: 70%;">
-                <div class="card-body">
-                    <!-- User Info with Three-Dot Menu -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="d-flex align-items-center">
-                            <img src="{{ asset('images/lake-sebu.jpg') }}" alt="User Avatar"
-                                class="rounded-circle" style="width: 40px; height: 40px;">
-                            <div class="ms-2">
-                                <h6 class="mb-0">{{ $user->name }}</h6>
-                                <small class="text-muted d-flex align-items-center">
-                                    <i class="far fa-clock me-1"></i>
-                                    Posted {{ $post->created_at->diffForHumans() }}
-                                </small>
-                            </div>
-                        </div>
+
+                    {{-- Timeline Section --}}
+                    <div class="section_title text-center">
+                        <h2 class="title_color">Timeline</h2>
                     </div>
-                    <!-- Post Content -->
-                    <a href="{{ route('viewpost', $post->id) }}" class="text-decoration-none text-dark">
-                        <p class="mb-3">{{ $post->content }}</p>
-
-                        <!-- Post Images -->
-                        <div class="row g-3">
-                            @if ($post->files->count() == 1)
-                                <!-- One Media -->
-                                <div class="col-12">
-                                    @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                        <video controls class="w-100 rounded" style="height: auto;">
-                                            <source src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    @else
-                                        <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                            alt="Post Image" class="img-fluid rounded w-100">
-                                    @endif
-                                </div>
-                            @elseif ($post->files->count() == 2)
-                                <!-- Two Media -->
-                                @foreach ($post->files as $file)
-                                    <div class="col-6">
-                                        <div class="media-container">
-                                            @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                <video controls class="rounded" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    <source src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                        type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
-                                                    Your browser does not support the video tag.
-                                                </video>
-                                            @else
-                                                <img src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                    alt="Post Image" class="img-fluid rounded w-100"
-                                                    style="height: 100%; object-fit: cover;">
-                                            @endif
+                    <div class="container py-4">
+                        @if ($posts->isNotEmpty())
+                            @foreach ($posts->take(8) as $post)
+                                <!-- Limit to latest 8 posts -->
+                                <!-- Post Card -->
+                                <div class="card shadow-sm mb-4 mx-auto" style="max-width: 70%; border:none;">
+                                    <div class="card-body">
+                                        <!-- User Info with Three-Dot Menu -->
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ asset('images/lake-sebu.jpg') }}" alt="User Avatar"
+                                                    class="rounded-circle" style="width: 40px; height: 40px;">
+                                                <div class="ms-2">
+                                                    <h6 class="mb-0">{{ $user->name }}</h6>
+                                                    <small class="text-muted d-flex align-items-center">
+                                                        <i class="far fa-clock me-1"></i>
+                                                        Posted {{ $post->created_at->diffForHumans() }}
+                                                    </small>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
-                            @elseif ($post->files->count() == 3)
-                                <!-- Three Media -->
-                                <div class="col-8">
-                                    <div class="media-container">
-                                        @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                            <video controls class="rounded" style="width: 100%; height: 100%; object-fit: cover;">
-                                                <source src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                    type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        @else
-                                            <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                alt="Post Image" class="img-fluid rounded w-100"
-                                                style="height: 100%; object-fit: cover;">
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="col-4 d-flex flex-column justify-content-between">
-                                    @foreach ($post->files->slice(1) as $file)
-                                        <div class="media-container mb-2">
-                                            @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                <video controls class="rounded" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    <source src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                        type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
-                                                    Your browser does not support the video tag.
-                                                </video>
-                                            @else
-                                                <img src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                    alt="Post Image" class="img-fluid rounded w-100"
-                                                    style="height: 100%; object-fit: cover;">
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @elseif ($post->files->count() >= 4)
-                                <!-- Four or More Media -->
-                                <div class="col-12">
-                                    <div class="media-container" style="height: 300px;">
-                                        @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                            <video controls class="rounded" style="width: 100%; height: 100%; object-fit: cover;">
-                                                <source src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                    type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        @else
-                                            <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                alt="Post Image" class="img-fluid rounded w-100"
-                                                style="height: 100%; object-fit: cover;">
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="row g-3 justify-content-center" style="margin-top: 10px; margin-left: 1px;">
-                                    @foreach ($post->files->slice(1, 3) as $key => $file)
-                                        <div class="col-4 position-relative d-flex justify-content-center">
-                                            <div class="media-container" style="height: 200px; width: 100%;">
-                                                @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                    <video controls class="rounded" style="width: 100%; height: 100%; object-fit: cover;">
-                                                        <source src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                            type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
-                                                        Your browser does not support the video tag.
-                                                    </video>
-                                                @else
-                                                    <img src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                        alt="Post Image" class="img-fluid rounded w-100"
-                                                        style="height: 100%; object-fit: cover;">
-                                                @endif
+                                        <!-- Post Content -->
+                                        <a href="{{ route('viewpost', $post->id) }}"
+                                            class="text-decoration-none text-dark">
+                                            <p class="mb-3">{{ $post->content }}</p>
 
-                                                @if ($loop->last && $post->files->count() > 4)
-                                                    <div class="overlay d-flex align-items-center justify-content-center">
-                                                        <span>+{{ $post->files->count() - 4 }}</span>
+                                            <!-- Post Images -->
+                                            <div class="row g-3">
+                                                @if ($post->files->count() == 1)
+                                                    <!-- One Media -->
+                                                    <div class="col-12">
+                                                        @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
+                                                            <video controls class="w-100 rounded" style="height: auto;">
+                                                                <source
+                                                                    src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
+                                                                    type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
+                                                                Your browser does not support the video tag.
+                                                            </video>
+                                                        @else
+                                                            <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
+                                                                alt="Post Image" class="img-fluid rounded w-100">
+                                                        @endif
+                                                    </div>
+                                                @elseif ($post->files->count() == 2)
+                                                    <!-- Two Media -->
+                                                    @foreach ($post->files as $file)
+                                                        <div class="col-6">
+                                                            <div class="media-container">
+                                                                @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
+                                                                    <video controls class="rounded"
+                                                                        style="width: 100%; height: 100%; object-fit: cover;">
+                                                                        <source
+                                                                            src="{{ asset('storage/images/' . $file->file_path) }}"
+                                                                            type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
+                                                                        Your browser does not support the video tag.
+                                                                    </video>
+                                                                @else
+                                                                    <img src="{{ asset('storage/images/' . $file->file_path) }}"
+                                                                        alt="Post Image" class="img-fluid rounded w-100"
+                                                                        style="height: 100%; object-fit: cover;">
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                @elseif ($post->files->count() == 3)
+                                                    <!-- Three Media -->
+                                                    <div class="col-8">
+                                                        <div class="media-container">
+                                                            @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
+                                                                <video controls class="rounded"
+                                                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                                                    <source
+                                                                        src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
+                                                                        type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
+                                                                    Your browser does not support the video tag.
+                                                                </video>
+                                                            @else
+                                                                <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
+                                                                    alt="Post Image" class="img-fluid rounded w-100"
+                                                                    style="height: 100%; object-fit: cover;">
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4 d-flex flex-column justify-content-between">
+                                                        @foreach ($post->files->slice(1) as $file)
+                                                            <div class="media-container mb-2">
+                                                                @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
+                                                                    <video controls class="rounded"
+                                                                        style="width: 100%; height: 100%; object-fit: cover;">
+                                                                        <source
+                                                                            src="{{ asset('storage/images/' . $file->file_path) }}"
+                                                                            type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
+                                                                        Your browser does not support the video tag.
+                                                                    </video>
+                                                                @else
+                                                                    <img src="{{ asset('storage/images/' . $file->file_path) }}"
+                                                                        alt="Post Image" class="img-fluid rounded w-100"
+                                                                        style="height: 100%; object-fit: cover;">
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @elseif ($post->files->count() >= 4)
+                                                    <!-- Four or More Media -->
+                                                    <div class="col-12">
+                                                        <div class="media-container" style="height: 300px;">
+                                                            @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
+                                                                <video controls class="rounded"
+                                                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                                                    <source
+                                                                        src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
+                                                                        type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
+                                                                    Your browser does not support the video tag.
+                                                                </video>
+                                                            @else
+                                                                <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
+                                                                    alt="Post Image" class="img-fluid rounded w-100"
+                                                                    style="height: 100%; object-fit: cover;">
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    <div class="row g-3 justify-content-center"
+                                                        style="margin-top: 10px; margin-left: 1px;">
+                                                        @foreach ($post->files->slice(1, 3) as $key => $file)
+                                                            <div
+                                                                class="col-4 position-relative d-flex justify-content-center">
+                                                                <div class="media-container"
+                                                                    style="height: 200px; width: 100%;">
+                                                                    @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
+                                                                        <video controls class="rounded"
+                                                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                                                            <source
+                                                                                src="{{ asset('storage/images/' . $file->file_path) }}"
+                                                                                type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
+                                                                            Your browser does not support the video tag.
+                                                                        </video>
+                                                                    @else
+                                                                        <img src="{{ asset('storage/images/' . $file->file_path) }}"
+                                                                            alt="Post Image"
+                                                                            class="img-fluid rounded w-100"
+                                                                            style="height: 100%; object-fit: cover;">
+                                                                    @endif
+
+                                                                    @if ($loop->last && $post->files->count() > 4)
+                                                                        <div
+                                                                            class="overlay d-flex align-items-center justify-content-center">
+                                                                            <span>+{{ $post->files->count() - 4 }}</span>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
                                                     </div>
                                                 @endif
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        </a>
+                                    </div>
                                 </div>
-                            @endif
-                        </div>
-                    </a>
-                </div>
-            </div>
-        @endforeach
-    @else
-        <p class="text-center text-muted">No posts available.</p>
-    @endif
-</div>
-
-
+                            @endforeach
+                        @else
+                            <p class="text-center text-muted">No posts available.</p>
+                        @endif
+                    </div>
 
                     <!--================ Testimonial Area  =================-->
                     <div class="comments-area">
@@ -659,16 +672,30 @@
                     <section class="accomodation_area section_gap">
                         <div class="container">
                             <div class="section_title text-center">
-                                <h2 class="title_color">Resort Accomodation</h2>
-                                <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
-                                    fast, </p>
+                                <h2 class="title_color">Resort Accommodation</h2>
+                                {{-- <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
+                                    fast,</p> --}}
                             </div>
-                            <div class="row mb_30">
+                            <style>
+                                .row1 {
+                                    display: -ms-flexbox;
+                                    display: flex;
+                                    -ms-flex-wrap: wrap;
+                                    flex-wrap: wrap;
+                                    margin-right: -15px;
+                                    margin-left: -15px;
+                                    flex-direction: row;
+                                    justify-content: center;
+                                    align-content: stretch;
+                                }
+                            </style>
+                            <div class="row1 mb_30 room-slider">
                                 @foreach ($rooms as $room)
                                     @if ($room->status !== 'offline')
                                         <!-- Check if room status is not 'offline' -->
-                                        <div class="col-lg-3 col-sm-6">
+                                        <div class="col-lg-3 col-sm-6 room-item">
                                             <div class="accomodation_item text-center">
+                                                <!-- Initialize Owl Carousel for individual room images -->
                                                 <div class="owl-carousel hotel_img">
                                                     @foreach ($room->images as $image)
                                                         <div>
@@ -689,7 +716,6 @@
                                         </div>
                                     @endif
                                 @endforeach
-
                             </div>
 
                         </div>
@@ -776,8 +802,8 @@
                         <div class="container">
                             <div class="section_title text-center">
                                 <h2 class="title_color">Menus</h2>
-                                <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
-                                    fast,</p>
+                                {{-- <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
+                                    fast,</p> --}}
                             </div>
 
                             <!-- Loop through each category -->
@@ -886,12 +912,13 @@
                         </nav>
                     </div>
                 </div>
-                <!-- Timeline -->
+
                 <div class="tab-pane fade" id="Timeline" role="tabpanel" aria-labelledby="timeline-tab">
                     <div class="comments-area">
                         <div class="section_title text-center">
                             <h2 class="title_color">Timeline</h2>
                         </div>
+
                         <div class="container py-4">
                             @if ($posts->isNotEmpty())
                                 @foreach ($posts as $post)
@@ -911,11 +938,10 @@
                                                         </small>
                                                     </div>
                                                 </div>
-
                                             </div>
+
                                             <!-- Post Content -->
-                                            <a href="{{ route('viewpost', $post->id) }}"
-                                                class="text-decoration-none text-dark">
+                                            <a href="{{ route('viewpost', $post->id) }}" class="text-decoration-none text-dark">
                                                 <p class="mb-3">{{ $post->content }}</p>
 
                                                 <!-- Post Images -->
@@ -924,8 +950,7 @@
                                                         <!-- One Media -->
                                                         <div class="col-12">
                                                             @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                <video controls class="w-100 rounded"
-                                                                    style="height: auto;">
+                                                                <video controls class="w-100 rounded" style="height: auto;">
                                                                     <source
                                                                         src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
                                                                         type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
@@ -997,41 +1022,53 @@
                                                                 </div>
                                                             @endforeach
                                                         </div>
-                                                        @elseif ($post->files->count() >= 4)
+                                                    @elseif ($post->files->count() >= 4)
                                                         <!-- Four Media: One Large on Top, Three Below with Equal Heights -->
                                                         <div class="col-12">
-                                                            <div class="media-container" style="height: 300px;"> <!-- Larger height for the top media -->
+                                                            <div class="media-container" style="height: 300px;">
+                                                                <!-- Larger height for the top media -->
                                                                 @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                    <video controls class="rounded" style="width: 100%; height: 100%; object-fit: cover;">
-                                                                        <source src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                                type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
+                                                                    <video controls class="rounded"
+                                                                        style="width: 100%; height: 100%; object-fit: cover;">
+                                                                        <source
+                                                                            src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
+                                                                            type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
                                                                         Your browser does not support the video tag.
                                                                     </video>
                                                                 @else
                                                                     <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                         alt="Post Image" class="img-fluid rounded w-100" style="height: 100%; object-fit: cover;">
+                                                                        alt="Post Image" class="img-fluid rounded w-100"
+                                                                        style="height: 100%; object-fit: cover;">
                                                                 @endif
                                                             </div>
                                                         </div>
-                                                        <div class="row g-3 justify-content-center" style="margin-top: 10px;margin-left:1px;">
+                                                        <div class="row g-3 justify-content-center"
+                                                            style="margin-top: 10px;margin-left:1px;">
                                                             @foreach ($post->files->slice(1, 3) as $key => $file)
-                                                                <div class="col-4 position-relative d-flex justify-content-center">
-                                                                    <div class="media-container" style="height: 200px; width: 100%;"> <!-- Adjusted height -->
+                                                                <div
+                                                                    class="col-4 position-relative d-flex justify-content-center">
+                                                                    <div class="media-container"
+                                                                        style="height: 200px; width: 100%;">
+                                                                        <!-- Adjusted height -->
                                                                         @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                            <video controls class="rounded" style="width: 100%; height: 100%; object-fit: cover;">
-                                                                                <source src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                                        type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
+                                                                            <video controls class="rounded"
+                                                                                style="width: 100%; height: 100%; object-fit: cover;">
+                                                                                <source
+                                                                                    src="{{ asset('storage/images/' . $file->file_path) }}"
+                                                                                    type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
                                                                                 Your browser does not support the video tag.
                                                                             </video>
                                                                         @else
                                                                             <img src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                                 alt="Post Image" class="img-fluid rounded w-100" style="height: 100%; object-fit: cover;">
+                                                                                alt="Post Image"
+                                                                                class="img-fluid rounded w-100"
+                                                                                style="height: 100%; object-fit: cover;">
                                                                         @endif
 
                                                                         <!-- Overlay for the Last Media -->
                                                                         @if ($loop->last && $post->files->count() > 4)
                                                                             <div class="overlay d-flex align-items-center justify-content-center"
-                                                                                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); color: white; font-size: 24px; border-radius: 8px;">
+                                                                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); color: white; font-size: 24px; border-radius: 8px;">
                                                                                 <span>+{{ $post->files->count() - 4 }}</span>
                                                                             </div>
                                                                         @endif
@@ -1039,61 +1076,17 @@
                                                                 </div>
                                                             @endforeach
                                                         </div>
-
                                                     @endif
-
                                                 </div>
-
-                                                <style>
-                                                    .position-relative {
-                                                        position: relative;
-                                                        /* Ensure the overlay is properly placed */
-                                                    }
-
-                                                    .overlay {
-                                                        position: absolute;
-                                                        top: 0;
-                                                        left: 0;
-                                                        width: 100%;
-                                                        height: 100%;
-                                                        background-color: rgba(0, 0, 0, 0.5);
-                                                        color: white;
-                                                        display: flex;
-                                                        align-items: center;
-                                                        justify-content: center;
-                                                        font-size: 1.5rem;
-                                                        font-weight: bold;
-                                                        border-radius: 0.375rem;
-                                                        /* Matches Bootstrap's "rounded" class */
-                                                        z-index: 10;
-                                                        /* Make sure it appears on top of the image */
-                                                    }
-
-                                                    .media-container {
-                                                        height: 200px;
-                                                        /* Set desired height for media */
-                                                        overflow: hidden;
-                                                        display: flex;
-                                                        align-items: center;
-                                                        justify-content: center;
-                                                    }
-
-                                                    .media-container img,
-                                                    .media-container video {
-                                                        height: 100%;
-                                                        width: auto;
-                                                        object-fit: cover;
-                                                    }
-                                                </style>
-
+                                            </a>
                                         </div>
-                                        </a>
                                     </div>
                                 @endforeach
                             @else
                                 <p class="text-center text-muted">No posts available.</p>
                             @endif
                         </div>
+
 
                     </div>
                 </div>
