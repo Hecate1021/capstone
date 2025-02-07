@@ -13,12 +13,19 @@ return new class extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sender_id');
-            $table->foreignId('receiver_id');
+            $table->foreignId('sender_id')
+                  ->constrained('users')        // References the 'id' column in the 'users' table
+                  ->onDelete('cascade');        // Deletes messages if the sender is deleted
+
+            $table->foreignId('receiver_id')
+                  ->constrained('users')        // References the 'id' column in the 'users' table
+                  ->onDelete('cascade');        // Deletes messages if the receiver is deleted
+
             $table->text('message');
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.

@@ -133,6 +133,7 @@
         </div>
     </div>
 </div>
+
 <div data-twe-modal-init
     class="fixed left-0 top-0 z-[1055] hidden h-full w-full overflow-y-auto overflow-x-hidden outline-none"
     id="staticBackdropCoverPhoto" data-twe-backdrop="static" data-twe-keyboard="false" tabindex="-1"

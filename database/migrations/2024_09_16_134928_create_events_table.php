@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('resort_id');
+            $table->unsignedBigInteger('resort_id'); // Resort ID
             $table->string('event_name');
             $table->text('description');
             $table->dateTime('event_start');
@@ -21,8 +21,14 @@ return new class extends Migration
             $table->decimal('price', 8, 2);
             $table->decimal('discount', 5, 2)->nullable();
             $table->timestamps();
+
+            // Foreign key constraint for resort_id, referencing the users table's id
+            $table->foreign('resort_id')
+                ->references('id')->on('users')
+                ->onDelete('cascade'); // Optional: delete events if the associated user is deleted
         });
     }
+
 
     /**
      * Reverse the migrations.

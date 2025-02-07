@@ -4,9 +4,12 @@
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Alishah&display=swap" rel="stylesheet">
 
-    <link href="https://cdn.jsdelivr.net/npm/filepond-plugin-media-preview@1.0.11/dist/filepond-plugin-media-preview.min.css" rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/npm/filepond-plugin-media-preview@1.0.11/dist/filepond-plugin-media-preview.min.css"
+        rel="stylesheet">
     <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
-    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet" />
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
+        rel="stylesheet" />
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -216,11 +219,14 @@
         .chat-logo .dropdown-divider {
             margin: 0;
         }
-        @media (max-width: 768px) { /* Adjust the max-width value as needed for your mobile breakpoint */
-    .chat-logo {
-        display: none;
-    }
-}
+
+        @media (max-width: 768px) {
+
+            /* Adjust the max-width value as needed for your mobile breakpoint */
+            .chat-logo {
+                display: none;
+            }
+        }
     </style>
     @stack('style')
 </head>
@@ -257,25 +263,26 @@
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script>
+        FilePond.registerPlugin(FilePondPluginImagePreview);
 
-    FilePond.registerPlugin(FilePondPluginImagePreview);
+        // Select all file inputs with the "filepond" class
+        const inputElements = document.querySelectorAll('.filepond');
 
+        // Initialize FilePond on each input element
+        inputElements.forEach(input => {
+            FilePond.create(input);
+        });
 
-    // Get a reference to the file input element
-    const inputElement = document.querySelector('input[type="file"]');
-
-    // Create a FilePond instance
-    const pond = FilePond.create(inputElement);
-
-    FilePond.setOptions({
-        server: {
-            process: '/upload',
-            revert: '/delete',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        // Set FilePond options globally
+        FilePond.setOptions({
+            server: {
+                process: '/upload',
+                revert: '/delete',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
             }
-        },
-    });
+        });
 
         $(document).ready(function() {
             // Initialize individual room image carousel
@@ -309,12 +316,10 @@
                 toastr.success('Profile updated successfully!', 'Success');
             @endif
         });
-
-
     </script>
-<script>
-
-</script>
+    <script></script>
+    <!-- Add this at the end of your body -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
 

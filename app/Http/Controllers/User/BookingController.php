@@ -125,7 +125,7 @@ class BookingController extends Controller
         if ($resortOwner) {
             // Send email to the resort owner
             Mail::to($resortOwner->email)
-                ->send(new BookingDetailsForOwner($booking, $userEmail, $resortOwner ));
+                ->send(new BookingDetailsForOwner($booking, $userEmail, $resortOwner));
 
             // Send email to the booking user
             Mail::to($currentUser->email)
@@ -167,38 +167,38 @@ class BookingController extends Controller
         return view('resort.booking.bookingCheckOut', compact('booking'));
     }
     public function check_out(Request $request, Booking $booking)
-{
-    $request->validate([
-        'room_name' => 'required|string|max:255',
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
-        'contact_no' => 'required|string|max:255',
-        'payment' => 'required|numeric',
-    ]);
+    {
+        $request->validate([
+            'room_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'contact_no' => 'required|string|max:255',
+            'payment' => 'required|numeric',
+        ]);
 
-    // Update room name
-    $booking->room->update(['name' => $request->room_name]);
+        // Update room name
+        $booking->room->update(['name' => $request->room_name]);
 
-    // Update booking details
-    $booking->update([
-        'name' => $request->name,
-        'email' => $request->email,
-        'contact_no' => $request->contact_no,
-        'payment' => $request->final_payment, // Updated to use the correct input name
-        'status' => 'Check Out',
-    ]);
+        // Update booking details
+        $booking->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'contact_no' => $request->contact_no,
+            'payment' => $request->final_payment, // Updated to use the correct input name
+            'status' => 'Check Out',
+        ]);
 
-    $user = $booking->user; // User who made the booking
+        $user = $booking->user; // User who made the booking
 
-    // Get the resort owner (user who posted the room)
-    $resortOwner = $booking->room->user; // Assuming 'user' relationship on Room model
+        // Get the resort owner (user who posted the room)
+        $resortOwner = $booking->room->user; // Assuming 'user' relationship on Room model
 
-    // Send an email to the user from the resort owner's email
-    Mail::to($booking->email)->send(new BookingCheckout($booking, $resortOwner, $user));
+        // Send an email to the user from the resort owner's email
+        Mail::to($booking->email)->send(new BookingCheckout($booking, $resortOwner, $user));
 
 
-    return redirect()->route('resort.booking')->with('success', 'Check Out successfully.');
-}
+        return redirect()->route('resort.booking')->with('success', 'Check Out successfully.');
+    }
 
 
 
@@ -254,7 +254,6 @@ class BookingController extends Controller
             'userReviews',
             'eventBookings'
         ));
-
     }
 
     public function bookingUserCancel(Request $request, $id)
@@ -297,7 +296,8 @@ class BookingController extends Controller
         return redirect()->route('user.mybooking')->with('success', 'Booking cancelled successfully.');
     }
 
-    public function bookingCancel(Request $request, $id){
+    public function bookingCancel(Request $request, $id)
+    {
         // Validate the request
         $request->validate([
             'reason' => 'required|string|max:255',
@@ -332,8 +332,31 @@ class BookingController extends Controller
     }
     public function calendar()
     {
-        return view('resort.booking.calendar');
+        // Fetch all bookings from the current month onwards
+        $bookings = Booking::with('user', 'room')
+            ->where('check_in_date', '>=', now()->startOfMonth())
+            ->get();
+
+        // Function to generate random colors
+        function getRandomColor()
+        {
+            $colors = ['#ff5733', '#33ff57', '#3357ff', '#ff33a8', '#f4a261', '#2a9d8f', '#e9c46a', '#f94144', '#06d6a0'];
+            return $colors[array_rand($colors)];
+        }
+
+        // Prepare bookings data for the calendar
+        $formattedBookings = $bookings->map(function ($booking) {
+            return [
+                'title' => $booking->room->name . ' - ' . $booking->user->name,
+                'start' => Carbon::parse($booking->check_in_date)->format('Y-m-d'),
+                'end' => Carbon::parse($booking->check_out_date)->addDay()->format('Y-m-d'),
+                'color' => getRandomColor(), // Assign a random color
+            ];
+        });
+
+        return view('resort.booking.calendar', compact('formattedBookings', 'bookings'));
     }
+
 
     public function getEvents()
     {

@@ -10,15 +10,22 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('event_booking_images', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('event_booking_id');
-            $table->string('image')->nullable();
-            $table->string('path')->nullable();
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('event_booking_images', function (Blueprint $table) {
+        $table->id();
+        $table->unsignedBigInteger('event_booking_id');
+        $table->string('image')->nullable();
+        $table->string('path')->nullable();
+        $table->timestamps();
+
+        // Foreign key constraint
+        $table->foreign('event_booking_id')
+              ->references('id')
+              ->on('event_bookings')
+              ->onDelete('cascade'); // Deletes images if the event booking is deleted
+    });
+}
+
 
     /**
      * Reverse the migrations.

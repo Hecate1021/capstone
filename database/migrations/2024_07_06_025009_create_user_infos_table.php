@@ -10,20 +10,28 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('user_infos', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->string('description')->nullable();
-            $table->bigInteger('contactNo')->nullable();
-            $table->string('address')->nullable();
-            $table->string('profilePhoto')->nullable();
-            $table->string('profilePath')->nullable();
-            $table->string('coverPhoto')->nullable();
-            $table->string('coverPath')->nullable();
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('user_infos', function (Blueprint $table) {
+        $table->id();
+        $table->unsignedBigInteger('user_id');
+
+        // Foreign key constraint
+        $table->foreign('user_id')
+              ->references('id')
+              ->on('users')
+              ->onDelete('cascade'); // Optional: Deletes user_info when the user is deleted
+
+        $table->string('description')->nullable();
+        $table->bigInteger('contactNo')->nullable();
+        $table->string('address')->nullable();
+        $table->string('profilePhoto')->nullable();
+        $table->string('profilePath')->nullable();
+        $table->string('coverPhoto')->nullable();
+        $table->string('coverPath')->nullable();
+        $table->timestamps();
+    });
+}
+
 
     /**
      * Reverse the migrations.

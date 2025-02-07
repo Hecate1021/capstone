@@ -17,11 +17,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/bookings/calendar', [BookingController::class, 'calendar']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post("push-subscribe", function(Request $request){
+Route::post("push-subscribe", function (Request $request) {
     PushSubscription::create([
         'data' => $request->getContent()
     ]);

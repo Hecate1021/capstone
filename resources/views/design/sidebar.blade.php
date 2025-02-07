@@ -51,6 +51,12 @@
                             <span class="flex-1 ms-3 whitespace-nowrap">Event</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('bookings.calendar') }}"
+                            class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 {{ Route::currentRouteName() == 'bookings.calendar' ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
+                            <span class="flex-1 ms-3 whitespace-nowrap">Calendar</span>
+                        </a>
+                    </li>
 
                 </ul>
             </li>

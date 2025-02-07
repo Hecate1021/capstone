@@ -49,17 +49,31 @@ class ChatController extends Controller
     }
     public function chatlist()
     {
-        $currentUserId = auth()->user()->id;
+        $currentUser = auth()->user();
+        $currentUserId = $currentUser->id;
 
-        // Get resort users with their latest messages
-        $users = User::where('role', 'resort')
-            ->withCount(['messages as unread_messages_count' => function ($query) use ($currentUserId) {
-                $query->where('receiver_id', $currentUserId)->where('is_read', false);
-            }])
-            ->get();
+        if ($currentUser->role === 'resort') {
+            // Show users who have sent messages to this resort
+            $users = User::where('role', 'user')
+                ->whereHas('messages', function ($query) use ($currentUserId) {
+                    $query->where('receiver_id', $currentUserId);
+                })
+                ->withCount(['messages as unread_messages_count' => function ($query) use ($currentUserId) {
+                    $query->where('receiver_id', $currentUserId)->where('is_read', false);
+                }])
+                ->get();
+        } else {
+            // Show all resort users for regular users
+            $users = User::where('role', 'resort')
+                ->withCount(['messages as unread_messages_count' => function ($query) use ($currentUserId) {
+                    $query->where('receiver_id', $currentUserId)->where('is_read', false);
+                }])
+                ->get();
+        }
 
         return view('mchatlist', compact('users'));
     }
+
 
 
 

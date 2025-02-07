@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Hash;
 
 class SocialiteController extends Controller
 {
-
     public function authProviderRedirect($provider)
     {
         if ($provider) {
@@ -20,30 +19,33 @@ class SocialiteController extends Controller
         abort(404);
     }
 
-    public function socialAuthentication($provider)
+   public function socialAuthentication($provider)
     {
-        try {
+    try {
+        if ($provider) {
+            $socialUser = Socialite::driver($provider)->user();
+            $user = User::where('auth_provider_id', $socialUser->id)->first();
 
-            $googleUser = Socialite::driver('google')->user();
-            $user = User::where('google_id', $googleUser->id)->first();
-            if ($user) {
-                Auth::login($user);
-                return redirect()->route('balai');
-            } else {
-                $userData = User::create([
-                    'name' => $googleUser->name,
-                    'email' => $googleUser->email,
+            if (!$user) {
+                $user = User::create([
+                    'name' => $socialUser->name,
+                    'email' => $socialUser->email,
                     'password' => Hash::make('Password@1234'),
-                    'google_id' => $googleUser->id,
+                    'auth_provider_id' => $socialUser->id,
+                    'auth_provider' => $provider,
                 ]);
-
-                if ($userData) {
-                    Auth::login($userData);
-                    return redirect()->route('balai');
-                }
             }
-        } catch (Exception $e) {
-            dd($e);
+
+            Auth::login($user);
+
+            return redirect()->route('balai');
         }
+
+        return redirect()->route('login')->with('error', 'Invalid provider!');
+    } catch (\Exception $e) {
+        return redirect()->route('login')->with('error', 'Authentication failed. Please try again.');
     }
+}
+
+
 }

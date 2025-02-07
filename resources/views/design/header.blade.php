@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Sa Balai</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
+<link rel="icon" href="{{ asset('images/balai-logo.jpg') }}" type="image/png">
     <link rel="stylesheet" href="{{ asset('build/' . $manifest['resources/css/app.css']['file']) }}">
 <script src="{{ asset('build/' . $manifest['resources/js/app.js']['file']) }}" defer></script>
 

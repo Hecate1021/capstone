@@ -18,8 +18,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Black overlay with transparency */
-            z-index: 1; /* Overlay sits above the background image */
+            background: rgba(0, 0, 0, 0.5);
+            /* Black overlay with transparency */
+            z-index: 1;
+            /* Overlay sits above the background image */
         }
 
         .overlay {
@@ -28,7 +30,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0; /* Background image stays behind everything */
+            z-index: 0;
+            /* Background image stays behind everything */
             pointer-events: none;
         }
 
@@ -40,9 +43,11 @@
 
         .banner_content {
             position: relative;
-            z-index: 2; /* Ensure content is above the overlay */
+            z-index: 2;
+            /* Ensure content is above the overlay */
             color: #fff;
-            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.7); /* Enhanced text shadow for readability */
+            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.7);
+            /* Enhanced text shadow for readability */
         }
 
         .logo-text {
@@ -80,20 +85,15 @@
         <div class="booking_table d_flex align-items-center">
             <!-- Background Image -->
             <div class="overlay">
-                <img src="{{ asset('images/background.png') }}" alt="Background Image" class="background-image" />
+                <img src="{{ $user->userinfo && $user->userinfo->coverPath ? asset('storage/images/' . $user->userinfo->coverPath) : asset('images/lake-sebu.jpg') }}"
+                    alt="Background Image" class="background-image" />
             </div>
             <div class="container">
                 <!-- Banner Content -->
                 <div class="banner_content text-center">
                     <h6></h6>
-                    <h2 style="font-family: 'Alishah', cursive;">Sa Balai</h2>
-
-                    <div class="logo-text">
-                        <h3>Lake View Resort</h3>
-                    </div>
-
-                    <p style="font-size:20px;">"A Taste of Your Own Home - Where the Ambiance Always Feels Like Home"</p>
-
+                    <h2 style="font-family: 'Alishah', cursive;">{{ $user->name }}</h2>
+                    <p style="font-size:20px;">"{{ $user->userInfo->description }}"</p>
                     <!-- Ratings -->
                     <div class="rating-container">
                         <div class="stars" style="--rating: {{ $averageRating ?? 0 }};">
@@ -941,7 +941,8 @@
                                             </div>
 
                                             <!-- Post Content -->
-                                            <a href="{{ route('viewpost', $post->id) }}" class="text-decoration-none text-dark">
+                                            <a href="{{ route('viewpost', $post->id) }}"
+                                                class="text-decoration-none text-dark">
                                                 <p class="mb-3">{{ $post->content }}</p>
 
                                                 <!-- Post Images -->
@@ -950,7 +951,8 @@
                                                         <!-- One Media -->
                                                         <div class="col-12">
                                                             @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                <video controls class="w-100 rounded" style="height: auto;">
+                                                                <video controls class="w-100 rounded"
+                                                                    style="height: auto;">
                                                                     <source
                                                                         src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
                                                                         type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">

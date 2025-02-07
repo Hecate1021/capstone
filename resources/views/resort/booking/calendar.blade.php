@@ -1,50 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Calendar</title>
-    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.6/main.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.6/main.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.6/main.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.6/main.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.6/main.min.js"></script>
-    <style>
-        #calendar {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 10px;
-        }
-    </style>
-</head>
-<body>
-    <div id="calendar"></div>
+@extends('design.header')
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
+@section('content')
+    @include('design.navbar')
+    @include('design.sidebar')
+    <div class="p-4 sm:ml-64 mt-8">
+        <div class="bg-white p-6 rounded-lg shadow-lg dark:border-gray-700 dark:bg-gray-900">
 
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                plugins: [ 'dayGrid', 'interaction' ],
-                initialView: 'dayGridMonth',
-                events: {
-                    url: '{{ route('bookings.events') }}',
-                    method: 'GET'
-                },
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,dayGridWeek,dayGridDay'
-                },
-                eventRender: function(info) {
-                    if (info.event.extendedProps.color) {
-                        info.el.style.backgroundColor = info.event.extendedProps.color;
-                    }
-                }
-            });
+            <div class="container mx-auto p-4">
+                <h1 class="text-2xl font-bold mb-4">Booking Calendar</h1>
 
-            calendar.render();
-        });
-    </script>
-</body>
-</html>
+                <div id="calendar" class="bg-white shadow-md rounded-lg p-4"></div>
+            </div>
+
+            <!-- FullCalendar Scripts & Styles -->
+            <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+            <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var calendarEl = document.getElementById('calendar');
+
+                    var calendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'dayGridMonth', // Start in the month view
+                        headerToolbar: {
+                            left: 'prev,next today',
+                            center: 'title',
+                            right: 'dayGridMonth' // Remove list view buttons
+                        },
+                        events: @json($formattedBookings),
+                        eventContent: function(info) {
+                            // Customize how events are shown in the list
+                            var title = info.event.title;
+                            var room = info.event.extendedProps.room;
+                            var user = info.event.extendedProps.user;
+                            var color = info.event.extendedProps.color;
+                            return {
+                                html: `<div style="background-color:${color}; padding: 5px; border-radius: 4px; color: white;">
+                                            <strong>${title}</strong><br>
+                                       </div>`
+                            };
+                        }
+                    });
+
+                    calendar.render();
+                });
+            </script>
+        </div>
+    </div>
+@endsection

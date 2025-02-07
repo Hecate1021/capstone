@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Booking extends Model
 {
@@ -22,8 +23,9 @@ class Booking extends Model
         'check_out_date',
         'status',
         'reason',
-       ' review_token'
+        ' review_token'
     ];
+    protected $dates = ['check_in_date', 'check_out_date'];
 
     public function room()
     {
@@ -48,6 +50,4 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class, 'resort_id');
     }
-
-
 }

@@ -249,7 +249,10 @@
             @foreach ($users as $user)
                 <a href="{{ route('chat', $user->id) }}" class="chat-item-link">
                     <div class="chat-item {{ $user->unread_messages_count > 0 ? 'unread' : '' }}">
-                        <img src="https://via.placeholder.com/50" alt="Profile Picture">
+                        <!-- Profile Picture with fallback -->
+                        <img src="{{ optional($user->userInfo)->profilePath ? asset('storage/images/' . optional($user->userInfo)->profilePath) : asset('images/default-avatar.png') }}"
+                            alt="Profile Picture" class="rounded-full cursor-pointer" width="40" height="40" id="userDropdownToggle">
+
                         <div class="chat-info">
                             <h6>{{ $user->name }}</h6>
                             <p>
@@ -268,6 +271,7 @@
                 </a>
             @endforeach
         </div>
+
     </div>
 
     <!-- Bootstrap JS -->
