@@ -19,16 +19,21 @@ class PostController extends Controller
         // Fetch authenticated user
         $user = auth()->user();
 
-        // Fetch posts with related user and files
-        $posts = Post::with(['user', 'files'])->latest()->get();
+        // Fetch posts created by the authenticated user with related files
+        $posts = Post::with(['user', 'files'])
+            ->where('user_id', $user->id) // Filter by the authenticated user's ID
+            ->latest() // Get the latest posts
+            ->get();
 
         // Pass data to the view
         return view('resort.post.post', compact('user', 'posts'));
     }
 
-    public function store(Request $request) {
+
+    public function store(Request $request)
+    {
         $validator = Validator::make($request->all(), [
-            'content' => 'required|string|max:255',
+            'content' => 'required|string',
         ]);
 
         $temporaryImages = TemporyImage::all();
@@ -85,32 +90,31 @@ class PostController extends Controller
     }
 
     public function view($id)
-{
-    // Fetch the post with its files
-    $post = Post::with('files')->findOrFail($id);
+    {
+        // Fetch the post with its files
+        $post = Post::with('files')->findOrFail($id);
 
-    // Prepare media files array with only images (filtering by extension)
-    $mediaFiles = $post->files->filter(function ($file) {
-        // Get the file extension (assuming 'file_name' is the actual file name field)
-        $extension = pathinfo($file->file_name, PATHINFO_EXTENSION);
-        // Only include image files
-        return in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
-    })->map(function ($file) {
-        // Map the filtered files to their asset paths
-        return [
-            'path' => asset('storage/images/' . $file->file_path),
-        ];
-    });
+        // Prepare media files array with only images (filtering by extension)
+        $mediaFiles = $post->files->filter(function ($file) {
+            // Get the file extension (assuming 'file_name' is the actual file name field)
+            $extension = pathinfo($file->file_name, PATHINFO_EXTENSION);
+            // Only include image files
+            return in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
+        })->map(function ($file) {
+            // Map the filtered files to their asset paths
+            return [
+                'path' => asset('storage/images/' . $file->file_path),
+            ];
+        });
 
-    // Pass the post and media files to the view
-    return view('resort.post.postview', compact('post', 'mediaFiles'));
-}
+        // Pass the post and media files to the view
+        return view('resort.post.postview', compact('post', 'mediaFiles'));
+    }
 
 
-public function viewpost($id)
-{
-    $post = Post::with('files')->findOrFail($id);
-    return view('postview', compact('post'));
-}
-
+    public function viewpost($id)
+    {
+        $post = Post::with('files')->findOrFail($id);
+        return view('postview', compact('post'));
+    }
 }

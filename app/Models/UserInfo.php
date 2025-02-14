@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserInfo extends Model
 {
     use HasFactory;
-    protected $guarderd = [];
+    protected $guarded = [];
     protected $fillable = [
         'user_id',        // Add user_id to fillable attributes
         'contactNo',
@@ -17,11 +17,12 @@ class UserInfo extends Model
         'profilePhoto',
         'profilePath',
         'coverPhoto',
-        'coverPath'
+        'coverPath',
+        'latitude',
+        'longitude'
     ];
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
 }

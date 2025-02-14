@@ -24,10 +24,20 @@ class EventBookingController extends Controller
 {
     public function index()
     {
-        $events = Events::all();
-        $bookings = EventBooking::all();
+        $user = Auth::user();
+        $resortId = $user->id; // The resort_id is the same as the user id
+
+        // Fetch only events belonging to the logged-in resort
+        $events = Events::where('resort_id', $resortId)->get();
+
+        // Fetch only event bookings related to the logged-in resort's events
+        $bookings = EventBooking::whereHas('event', function ($query) use ($resortId) {
+            $query->where('resort_id', $resortId);
+        })->get();
+
         return view('resort.booking.event.event', compact('bookings', 'events'));
     }
+
 
     public function store(Request $request)
     {
@@ -285,16 +295,15 @@ class EventBookingController extends Controller
         $currentUser = Auth::user();
         $user = Auth::user();
 
-           Mail::to($resortOwner->email)
-                ->send(new EventResortBookingDetails($eventBooking, $user, $resortOwner, $event));
+        Mail::to($resortOwner->email)
+            ->send(new EventResortBookingDetails($eventBooking, $user, $resortOwner, $event));
 
 
-           Mail::to($currentUser->email)
-              ->send(new EventUserBookingDetails($eventBooking, $currentUser, $resortOwner, $event));
+        Mail::to($currentUser->email)
+            ->send(new EventUserBookingDetails($eventBooking, $currentUser, $resortOwner, $event));
 
 
 
         return view('successBooking');
     }
-
 }

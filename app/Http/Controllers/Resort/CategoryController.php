@@ -5,14 +5,24 @@ namespace App\Http\Controllers\Resort;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
-    public function index(){
-        $categories = Category::with('subcategories')->get();
+    public function index()
+    {
+        $user = Auth::user();
+        $resortId = $user->id; // The resort_id is the same as the user id
+
+        // Fetch only categories belonging to the logged-in resort
+        $categories = Category::with('subcategories')
+            ->where('resort_id', $resortId)
+            ->get();
 
         return view('resort.category.category', compact('categories'));
     }
+
+
 
     public function store(Request $request)
     {
@@ -21,14 +31,17 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        // Create a new category
+        // Create the category and assign the resort_id to the logged-in user
         Category::create([
             'name' => $request->name,
+            'resort_id' => Auth::id(),  // Assign the authenticated user's ID as the resort_id
         ]);
 
         // Redirect back with success message
         return redirect()->back()->with('success', 'Category added successfully!');
     }
+
+
     public function update(Request $request, Category $category)
     {
 

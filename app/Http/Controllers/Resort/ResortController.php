@@ -19,7 +19,8 @@ use App\Models\User;
 
 class ResortController extends Controller
 {
-    public function profile() {
+    public function profile()
+    {
         $user = Auth::user();
         $isOwner = true;
 
@@ -63,44 +64,52 @@ class ResortController extends Controller
 
     //booking
     public function booking(Request $request)
-{
-    $query = Booking::query();
+    {
+        $user = Auth::user();
+        $resortId = $user->id; // The resort_id is the same as the user id
 
-    // Filtering by status
-    if ($request->has('status') && $request->status != '') {
-        $query->where('status', $request->status);
+        $query = Booking::whereHas('room', function ($q) use ($resortId) {
+            $q->where('user_id', $resortId);
+        });
+
+        // Filtering by status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        // Get the number of items per page from the request or default to 10
+        $itemsPerPage = $request->input('items_per_page', 10);
+
+        // Define the custom order for the status
+        $statusOrder = "'Pending', 'Accept', 'Check Out', 'Cancel'"; // Add any other statuses as needed
+
+        // Sort bookings by status first, then by created_at for latest to oldest
+        $bookings = $query->with('room')
+            ->orderByRaw("FIELD(status, $statusOrder) ASC") // Order by status as specified
+            ->orderBy('created_at', 'DESC') // Order by created_at for latest to oldest
+            ->paginate($itemsPerPage);
+
+        // Add a unique identifier to each booking
+        $bookings->getCollection()->transform(function ($booking, $index) {
+            $booking->unique_id = 'booking-' . $index;
+            return $booking;
+        });
+
+        return view('resort.resort-booking', compact('bookings', 'itemsPerPage'));
     }
 
-    // Get the number of items per page from the request or default to 10
-    $itemsPerPage = $request->input('items_per_page', 10);
-
-    // Define the custom order for the status
-    $statusOrder = "'Pending', 'Accept', 'Check Out', 'Cancel'"; // Add any other statuses as needed
-
-    // Sort bookings by status first, then by created_at for latest to oldest
-    $bookings = $query->with('room')
-        ->orderByRaw("FIELD(status, $statusOrder) ASC") // Order by status as specified
-        ->orderBy('created_at', 'DESC') // Order by created_at for latest to oldest
-        ->paginate($itemsPerPage);
-
-    // Add a unique identifier to each booking
-    $bookings->getCollection()->transform(function ($booking, $index) {
-        $booking->unique_id = 'booking-' . $index;
-        return $booking;
-    });
-
-    return view('resort.resort-booking', compact('bookings', 'itemsPerPage'));
-}
 
 
 
 
 
-    public function bookingShow(Booking $booking){
+    public function bookingShow(Booking $booking)
+    {
 
         return view('resort.booking.bookingDetails', compact('booking'));
     }
-    public function addbooking(){
+    public function addbooking()
+    {
         $rooms = Room::all();
         return view('resort.booking.addBooking', compact('rooms'));
     }

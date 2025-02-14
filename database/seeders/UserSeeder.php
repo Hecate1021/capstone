@@ -32,6 +32,12 @@ class UserSeeder extends Seeder
                 'password' => bcrypt('12345'),
                 'role' => 'user'
             ],
+            [
+                'name' => 'resort1',
+                'email' => 'resort1@gmail.com',
+                'password' => bcrypt('12345'),
+                'role' => 'resort'
+            ],
         ]);
     }
 }

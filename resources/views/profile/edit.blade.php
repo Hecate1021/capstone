@@ -7,15 +7,14 @@
 
                 <!-- Cover Photo Section -->
                 @if (auth()->user()->role === 'resort')
-                    <div class="position-relative"
-                        style="width: 100%; height: 200px; background-color: #f8f9fa; border-radius: 10px; overflow: hidden;">
-                        <img class="object-fit-cover w-100 h-100"
-                            src="{{ $user->userinfo && $user->userinfo->coverPath ? asset('storage/images/' . $user->userinfo->coverPath) : asset('images/lake-sebu.jpg') }}"
-                            alt="Cover Image">
+                    <!-- Cover Photo Container -->
+                    <div class="position-relative" style="width: 100%; height: 200px; overflow: hidden;">
+                        <img src="{{ $user->userinfo && $user->userinfo->coverPath ? asset('storage/images/' . $user->userinfo->coverPath) : asset('images/lake-sebu.jpg') }}"
+                            alt="Cover Photo" class="w-100 h-100" style="object-fit: cover;">
 
                         <!-- Camera Icon (Cover Photo) -->
                         <div class="position-absolute d-flex align-items-center justify-content-center"
-                            style="bottom: 10px; left: 10px; width: 35px; height: 35px; background-color: rgba(255, 255, 255, 0.8); color: #007bff; border-radius: 50%; cursor: pointer; transition: 0.3s;"
+                            style="bottom: 10px; left: 10px; width: 35px; height: 35px; background-color: rgba(255, 255, 255, 0.8); color: #007bff; border-radius: 50%; cursor: pointer; transition: 0.3s; z-index: 10;"
                             onmouseover="this.style.backgroundColor='#007bff'; this.style.color='white';"
                             onmouseout="this.style.backgroundColor='rgba(255, 255, 255, 0.8)'; this.style.color='#007bff';"
                             data-bs-toggle="modal" data-bs-target="#staticBackdropCoverPhoto">
@@ -34,11 +33,12 @@
 
                     <!-- Camera Icon (Profile Picture) -->
                     <div class="position-absolute d-flex align-items-center justify-content-center"
-                        style="bottom: 5px; right: 5px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; width: 30px; height: 30px; cursor: pointer; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);"
+                        style="bottom: -5px; right: 225px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; width: 35px; height: 35px; cursor: pointer; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);"
                         data-bs-toggle="modal" data-bs-target="#uploadPhotoModal">
                         <i class="fas fa-camera" style="color: #007bff;"></i>
                     </div>
                 </div>
+
 
                 <!-- Profile Information Section -->
                 <div class="text-center mt-3">
@@ -93,6 +93,24 @@
 
                     <!-- Description Input (Only for Resort Role) -->
                     @if (auth()->user()->role === 'resort')
+                        <div class="mb-3">
+                            <label for="latitude" class="form-label">Latitude</label>
+                            <input id="latitude" name="latitude" type="text" class="form-control w-100"
+                                value="{{ old('latitude', $userInfo->latitude ?? '') }}" required>
+                            @error('latitude')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="longitude" class="form-label">Longitude</label>
+                            <input id="longitude" name="longitude" type="text" class="form-control w-100"
+                                value="{{ old('longitude', $userInfo->longitude ?? '') }}" required>
+                            @error('longitude')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
                             <input id="description" name="description" type="text" class="form-control w-100"

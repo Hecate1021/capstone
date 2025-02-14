@@ -3,52 +3,34 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+
+use App\Models\EventCalendar;
+use App\Models\EventCalendarImages;
 use App\Models\TemporyImage;
-use App\Models\tourist;
-use App\Models\TouristImage;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class AdminController extends Controller
+class EventCalendarController extends Controller
 {
-
     public function index()
     {
-        // Count the number of users based on roles
-        $resortCount = User::where('role', 'resort')->count();
-        $userCount = User::where('role', 'user')->count();
-
-        // Get resorts with their average ratings
-        $resortRatings = User::where('role', 'resort')
-            ->withAvg('reviews', 'rating')
-            ->get(['id', 'name']);
-
-        // Paginate resorts and users (10 per page)
-        $resorts = User::where('role', 'resort')->paginate(10);
-        $users = User::where('role', 'user')->paginate(10);
-
-        return view('admin.admin-dashboard', compact('resortCount', 'userCount', 'resortRatings', 'resorts', 'users'));
-    }
-
-
-    public function tourist()
-    {
-        $touristSpots = Tourist::with('images')->get(); // Fetch tourist spots with their images
-        return view('admin.TouristSpot.tourist-spot', compact('touristSpots'));
+        $eventCalendars = EventCalendar::with(['images', 'user'])->get();
+        return view('admin.EventCalendar.event-calendar', compact('eventCalendars'));
     }
 
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'location' => 'required|string',
+            'date_start' => 'required|date',
+            'date_end' => 'required|date|after_or_equal:date_start',
+
         ]);
 
-
-
+        // Get temporary images uploaded in the current session/request
         $temporaryImages = TemporyImage::all(); // Get all temporary images
 
         if ($validator->fails()) {
@@ -60,43 +42,52 @@ class AdminController extends Controller
 
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        // Save Tourist Spot
-        $tourist = tourist::create([
+
+        // Save Event Calendar
+        $event = EventCalendar::create([
             'user_id' => $request->user()->id,
             'name' => $request->name,
             'description' => $request->description,
-            'location' => $request->location,
+            'date_start' => $request->date_start,
+            'date_end' => $request->date_end,
         ]);
 
+        // Process each temporary image
         foreach ($temporaryImages as $temporaryImage) {
             // Copy image from temp to permanent storage
+            $destinationPath = 'images/' . $temporaryImage->folder . '/' . $temporaryImage->file;
             Storage::copy(
                 'images/tmp/' . $temporaryImage->folder . '/' . $temporaryImage->file,
-                'images/' . $temporaryImage->folder . '/' . $temporaryImage->file
+                $destinationPath
             );
 
-            TouristImage::create([
-                'tourist_id' => $tourist->id, // Associate with the newly created event
+            // Save image details in EventCalendarImages table
+            EventCalendarImages::create([
+                'event_calendar_id' => $event->id,
                 'image' => $temporaryImage->file,
                 'path' => $temporaryImage->folder . '/' . $temporaryImage->file
             ]);
 
+            // Delete the temporary image and directory
             Storage::deleteDirectory('images/tmp/' . $temporaryImage->folder);
             $temporaryImage->delete();
-
-            return redirect()->back()->with('success', 'Tourist Spot added successfully!');
         }
+
+        return redirect()->back()->with('success', 'Event added successfully!');
     }
-    public function update(Request $request, $id)
+
+    public function update(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'location' => 'required|string',
+            'date_start' => 'required|date',
+            'date_end' => 'required|date|after_or_equal:date_start',
+
         ]);
 
-        $touristSpot = Tourist::findOrFail($id);
-
+        // Get temporary images uploaded in the current session/request
         $temporaryImages = TemporyImage::all(); // Get all temporary images
 
         if ($validator->fails()) {
@@ -109,36 +100,60 @@ class AdminController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Update Tourist Spot details
-        $touristSpot->update([
+        // Save Event Calendar
+        $event->update([
             'name' => $request->name,
             'description' => $request->description,
-            'location' => $request->location,
+            'date_start' => $request->date_start,
+            'date_end' => $request->date_end,
         ]);
 
+
+
+        // Process each temporary image
         foreach ($temporaryImages as $temporaryImage) {
             // Copy image from temp to permanent storage
+            $destinationPath = 'images/' . $temporaryImage->folder . '/' . $temporaryImage->file;
             Storage::copy(
                 'images/tmp/' . $temporaryImage->folder . '/' . $temporaryImage->file,
-                'images/' . $temporaryImage->folder . '/' . $temporaryImage->file
+                $destinationPath
             );
 
-            TouristImage::create([
-                'tourist_id' => $touristSpot->id, // Associate with the updated tourist spot
+            // Save image details in EventCalendarImages table
+            EventCalendarImages::create([
+                'event_calendar_id' => $event->id,
                 'image' => $temporaryImage->file,
                 'path' => $temporaryImage->folder . '/' . $temporaryImage->file
             ]);
 
+            // Delete the temporary image and directory
             Storage::deleteDirectory('images/tmp/' . $temporaryImage->folder);
             $temporaryImage->delete();
         }
 
-        return redirect()->back()->with('success', 'Tourist Spot updated successfully!');
+        return redirect()->back()->with('success', 'Event added successfully!');
+    }
+
+    public function destroy($id)
+    {
+        $event = EventCalendar::findOrFail($id);
+
+        // Delete associated images
+        $eventImages = EventCalendarImages::where('event_calendar_id', $event->id)->get();
+        foreach ($eventImages as $image) {
+            Storage::delete('images/' . $image->path); // Delete image from storage
+            $image->delete(); // Delete record from database
+        }
+
+        // Delete event
+        $event->delete();
+
+        return redirect()->back()->with('success', 'Event deleted successfully.');
     }
     public function imagedestroy($id)
     {
 
-        $image = TouristImage::findOrFail($id);
+        $image = EventCalendarImages::findOrFail($id);
 
         // Delete the image file from storage
         Storage::delete('images/' . $image->path);
@@ -147,32 +162,5 @@ class AdminController extends Controller
         $image->delete();
 
         return response()->json(['success' => true, 'message' => 'Image deleted successfully!']);
-    }
-    public function destroy($id)
-    {
-        $touristSpot = tourist::findOrFail($id);
-
-        // Delete associated images from storage
-        foreach ($touristSpot->images as $image) {
-            $imagePath = storage_path('app/public/images/' . $image->path);
-            if (file_exists($imagePath)) {
-                unlink($imagePath); // Remove the file
-            }
-            $image->delete(); // Remove the image record from the database
-        }
-
-        // Delete the tourist spot
-        $touristSpot->delete();
-
-        return redirect()->back()->with('success', 'Tourist Spot deleted successfully.');
-    }
-
-    public function userlist()
-    {
-        $users = User::where('email', 'like', '%@gmail.com')
-            ->where('role', '!=', 'admin') // Exclude admin role
-            ->get(['name', 'email', 'role', 'email_verified_at']);
-
-        return view('admin.userlists', compact('users'));
     }
 }

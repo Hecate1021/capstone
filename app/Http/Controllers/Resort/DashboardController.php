@@ -1,20 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Resort; // Ensure this matches the folder structure
+namespace App\Http\Controllers\Resort;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Booking;
 use App\Models\EventBooking;
 use App\Models\Room;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
-class dashboard extends Controller // Class name should be capitalized
+class DashboardController extends Controller
 {
-
-
     public function dashboard()
     {
         $user = Auth::user();
@@ -27,7 +25,9 @@ class dashboard extends Controller // Class name should be capitalized
 
         $totalPayment = Booking::whereHas('room', function ($query) use ($resortId) {
             $query->where('user_id', $resortId);
-        })->sum('payment');
+        })
+            ->whereIn('status', ['Accept', 'Check Out']) // Only count payments for these statuses
+            ->sum('payment');
 
         $pendingBookingsCount = Booking::whereHas('room', function ($query) use ($resortId) {
             $query->where('user_id', $resortId);
@@ -71,6 +71,13 @@ class dashboard extends Controller // Class name should be capitalized
             ->orderBy(DB::raw('MONTH(bookings.created_at)'))
             ->get();
 
+        $monthlyRatings = DB::table('reviews')
+            ->select(DB::raw('MONTHNAME(created_at) as month'), DB::raw('AVG(rating) as average_rating'))
+            ->groupBy('month')
+            ->orderBy(DB::raw('MONTH(created_at)'))
+            ->get();
+
+
         return view('resort.dashboard', compact(
             'user',
             'rooms',
@@ -81,7 +88,8 @@ class dashboard extends Controller // Class name should be capitalized
             'eventBooking',
             'monthlyBookings',
             'weeklyBookings',
-            'dailyBookings'
+            'dailyBookings',
+            'monthlyRatings'
         ));
     }
 }

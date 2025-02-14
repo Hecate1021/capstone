@@ -83,1016 +83,541 @@
 
     <section class="banner_area">
         <div class="booking_table d_flex align-items-center">
-            <!-- Background Image -->
             <div class="overlay">
-                <img src="{{ $user->userinfo && $user->userinfo->coverPath ? asset('storage/images/' . $user->userinfo->coverPath) : asset('images/lake-sebu.jpg') }}"
-                    alt="Background Image" class="background-image" />
+                <img src="{{ asset('images/lake1.jpg') }}" alt="Background Image" class="background-image" />
             </div>
             <div class="container">
-                <!-- Banner Content -->
                 <div class="banner_content text-center">
-                    <h6></h6>
-                    <h2 style="font-family: 'Alishah', cursive;">{{ $user->name }}</h2>
-                    <p style="font-size:20px;">"{{ $user->userInfo->description }}"</p>
-                    <!-- Ratings -->
-                    <div class="rating-container">
-                        <div class="stars" style="--rating: {{ $averageRating ?? 0 }};">
-                            ★★★★★
-                        </div>
-                        <span class="rating-number">({{ number_format($averageRating, 1) ?? '0.0' }})</span>
-                    </div>
+                    <h2 class="title">Lake Sebu</h2>
+                    <p class="subtitle">"Home of the Living Treasure"</p>
+                </div>
 
-                    <div>
-                        <a href="{{ route('balai') }}" class="btn theme_btn button_hover">Get Started</a>
+                <!-- Weather Section (Inside Banner) -->
+                <div class="weather_container p-4 rounded-lg">
+                    <div class="row justify-content-center">
+                        <!-- Current Weather -->
+                        <div class="col-md-4 col-sm-12 weather_box">
+                            <h2 id="temperature" class="weather-title">Loading...<br>Lake Sebu, PH</h2>
+                            <p id="date" class="text-muted"></p>
+                            <div id="extra-weather-details" class="extra-details d-none d-md-block">
+                                <p>🌬 Wind Speed: <span id="wind-speed">0 m/s</span></p>
+                                <p>🔽 Pressure: <span id="pressure">0 hPa</span></p>
+                                <p>🌡 Feels Like: <span id="feels-like">0°C</span></p>
+                                <p>👁 Visibility: <span id="visibility">0 km</span></p>
+                            </div>
+                        </div>
+
+                        <!-- 5 Days Forecast (Hidden on Mobile) -->
+                        <div class="col-md-8 col-sm-12 forecast_box d-none d-md-block">
+                            <h3 class="forecast-title">Next 5 Days Forecast</h3>
+                            <div id="forecast" class="forecast-container">
+                                <!-- Forecast items added dynamically -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Weather API Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const apiKey = "e174e93b570221df4ab7045f4f6ecaea";
+            const city = "Lake Sebu, PH";
+
+            const weatherApiUrl =
+                `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+            const forecastApiUrl =
+                `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
+
+            fetch(weatherApiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("temperature").innerHTML = `${data.main.temp}°C<br>Lake Sebu, PH`;
+                    document.getElementById("date").innerText = new Date().toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric"
+                    });
+
+                    document.getElementById("wind-speed").innerText = `${data.wind.speed} m/s`;
+                    document.getElementById("pressure").innerText = `${data.main.pressure} hPa`;
+                    document.getElementById("feels-like").innerText = `${data.main.feels_like}°C`;
+                    document.getElementById("visibility").innerText =
+                        `${(data.visibility / 1000).toFixed(1)} km`;
+                })
+                .catch(error => console.error("Error fetching weather data:", error));
+
+            fetch(forecastApiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const forecastDiv = document.getElementById("forecast");
+                    forecastDiv.innerHTML = "";
+
+                    // Get unique dates and their first forecast starting from tomorrow
+                    const uniqueDates = {};
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1); // Start from tomorrow
+                    tomorrow.setHours(0, 0, 0, 0); // Reset time to start of day
+
+                    data.list.forEach(entry => {
+                        const entryDate = new Date(entry.dt_txt);
+                        const date = entryDate.toLocaleDateString();
+
+                        if (entryDate >= tomorrow && !uniqueDates[date]) {
+                            uniqueDates[date] = entry;
+                        }
+                    });
+
+                    // Convert to array and take first 5 days
+                    const dailyForecasts = Object.values(uniqueDates).slice(0, 5);
+
+                    dailyForecasts.forEach(day => {
+                        const date = new Date(day.dt_txt).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short"
+                        });
+                        const tempMax = Math.round(day.main.temp_max);
+                        const description = day.weather[0].description;
+                        const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
+
+                        forecastDiv.innerHTML += `
+                        <div class="forecast-item">
+                            <p class="forecast-date">${date}</p>
+                            <img src="${icon}" alt="${description}" class="forecast-icon">
+                            <p class="forecast-temp">${tempMax}°C</p>
+                        </div>`;
+                    });
+                })
+                .catch(error => console.error("Error fetching forecast data:", error));
+        });
+    </script>
+
+    <style>
+        /* General Layout */
+        .banner_area {
+            position: relative;
+            min-height: 90vh;
+        }
+
+        .overlay img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Title Styling */
+        .title {
+            font-family: 'Alishah', cursive;
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: white;
+        }
+
+        /* Weather Container */
+        .weather_container {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+        }
+
+        /* Forecast */
+        .forecast-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .forecast-item {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .forecast-item:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .forecast-date {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .forecast-icon {
+            width: 50px;
+            height: 50px;
+            margin: 10px 0;
+        }
+
+        .forecast-temp {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .min-temp {
+            font-size: 0.9rem;
+            color: #d1d1d1;
+            margin-left: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 3rem;
+            }
+
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .weather-title {
+                font-size: 1.5rem;
+            }
+
+            .extra-details {
+                display: none !important;
+            }
+
+            .forecast_box {
+                display: none !important;
+            }
+        }
+    </style>
+
+
+
+
+
+
+
+
+
+
     <!--================Banner Area =================-->
     <div class="">
         <div class="shadow-lg mb-5 bg-white rounded">
-            <!-- Nav tabs -->
-            <ul class="nav nav-tabs justify-content-center" id="bookingTab" role="tablist"
-                style="    display: flex; padding-left: 0; margin-bottom: 0; list-style: none;">
-                <li class="nav-item">
-                    <a class="nav-link active" id="overview-tab" data-toggle="tab" href="#overview" role="tab"
-                        aria-controls="overview" aria-selected="true">Overview</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="room-tab" data-toggle="tab" href="#room" role="tab" aria-controls="room"
-                        aria-selected="false">Room</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="event-tab" data-toggle="tab" href="#event" role="tab" aria-controls="event"
-                        aria-selected="false">Event</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="menus-tab" data-toggle="tab" href="#menus" role="tab" aria-controls="menus"
-                        aria-selected="false">Menus</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="timeline-tab" data-toggle="tab" href="#Timeline" role="tab"
-                        aria-controls="Timeline" aria-selected="false">Timeline</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="review-tab" data-toggle="tab" href="#review" role="tab"
-                        aria-controls="review" aria-selected="false">Review</a>
-                </li>
+            <!-- Tab panes -->
 
-            </ul>
+            <!--================ Accomodation Area  =================-->
+            <section class="accomodation_area section_gap">
+                <div class="container">
+                    <div class="section_title text-center">
+                        <h2 class="title_color">Resorts</h2>
+                    </div>
+                    <div class="row mb_30">
+                        @foreach ($resorts as $resort)
+                            <div class="col-lg-3 col-sm-6">
+                                <div class="accomodation_item text-center">
+                                    <div class="hotel_img">
+                                        <img src="{{ asset('storage/images/' . $resort->image) }}" alt="Resort Image"
+                                            class="img-fluid">
+                                        <a href="{{ route('resort.show', ['id' => $resort->id]) }}"
+                                            class="btn theme_btn button_hover">Explore</a>
+                                    </div>
+                                    <a href="#">
+                                        <h4 class="sec_h4">{{ $resort->name }}</h4>
+                                    </a>
+                                    <h5>
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= $resort->averageRating)
+                                                <!-- Use averageRating instead of rating -->
+                                                <i class="fa fa-star text-warning"></i>
+                                            @else
+                                                <i class="fa fa-star text-secondary"></i>
+                                            @endif
+                                        @endfor
+                                        ({{ $resort->averageRating }})
+                                        <!-- Use averageRating here as well -->
+                                    </h5>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+
+
+            <section class="facilities_area section_gap">
+                <div class="container">
+                    <div class="section_title text-center">
+                        <h2 class="title_color" style="color: white;">Tourist Spot</h2>
+                    </div>
+                    <div class="row mb_30">
+                        @foreach ($touristSpots as $spot)
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="tourist-spot-card">
+                                    <div class="thumb">
+                                        @foreach ($spot->images as $image)
+                                            <img class="img-fluid" src="{{ asset('storage/images/' . $image->path) }}"
+                                                alt="{{ $image->image }}">
+                                        @endforeach
+                                    </div>
+                                    <div class="details">
+                                        <h4 class="spot-title">{{ $spot->name }}</h4>
+                                        <p class="spot-description">{{ Str::limit($spot->description, 100) }}</p>
+                                        <h6 class="spot-location">
+                                            Located at: {{ $spot->location }}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
 
             <style>
-                .sticky-nav {
-                    margin-top: 50px;
-                    position: fixed;
-                    top: 0;
+                .tourist-spot-card {
+                    background: #fff;
+                    backdrop-filter: blur(10px);
+                    border-radius: 15px;
+                    overflow: hidden;
+                    transition: transform 0.3s ease;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                }
+
+                .tourist-spot-card:hover {
+                    transform: translateY(-5px);
+                }
+
+                .thumb {
                     width: 100%;
-                    z-index: 1000;
-                    background-color: white;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    height: 250px;
+                    overflow: hidden;
                 }
 
-                .sticky-placeholder {
-                    height: 50px;
+                .thumb img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.3s ease;
                 }
 
-                @media (max-width: 768px) {
-                    .sticky-nav {
-                        margin-top: 0;
-                    }
-
-                    .sticky-placeholder {
-                        height: 0;
-                    }
-
-                    .nav-tabs .nav-link {
-                        display: block;
-                        padding: 0.5rem 4px;
-                        color: black;
-                    }
+                .tourist-spot-card:hover .thumb img {
+                    transform: scale(1.05);
                 }
 
-                .nav-tabs .nav-link {
-                    color: black;
+                .details {
+                    padding: 20px;
+                    text-align: center;
                 }
 
+                .spot-title {
+                    color: #333;
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    margin-bottom: 10px;
+                }
 
+                .spot-description {
+                    color: #666;
+                    font-size: 0.95rem;
+                    line-height: 1.6;
+                    margin-bottom: 15px;
+                }
 
-                .nav-tabs .nav-link.active {
-                    color: blue;
+                .spot-location {
+                    color: #444;
+                    font-size: 0.9rem;
+                    font-weight: 500;
                 }
             </style>
 
-            <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    var navbar = document.getElementById("bookingTab");
-                    var stickyOffset = navbar.offsetTop;
-
-                    // Sticky navbar on scroll
-                    window.onscroll = function() {
-                        if (window.pageYOffset >= stickyOffset) {
-                            navbar.classList.add("sticky-nav");
-                            navbar.parentElement.classList.add("sticky-placeholder");
-                        } else {
-                            navbar.classList.remove("sticky-nav");
-                            navbar.parentElement.classList.remove("sticky-placeholder");
-                        }
-                    };
-
-                    // Get the active tab from localStorage
-                    var activeTab = localStorage.getItem('activeTab');
-                    if (activeTab) {
-                        // Remove 'active' class from all tabs
-                        var tabs = document.querySelectorAll('#bookingTab .nav-link');
-                        tabs.forEach(function(tab) {
-                            tab.classList.remove('active');
-                            tab.setAttribute('aria-selected', 'false');
-                        });
-
-                        // Activate the saved tab
-                        var savedTab = document.querySelector(`a[href="${activeTab}"]`);
-                        if (savedTab) {
-                            savedTab.classList.add('active');
-                            savedTab.setAttribute('aria-selected', 'true');
-
-                            // Activate the corresponding tab content
-                            var tabContent = document.querySelector(activeTab);
-                            if (tabContent) {
-                                var tabPanels = document.querySelectorAll('.tab-pane');
-                                tabPanels.forEach(function(panel) {
-                                    panel.classList.remove('show', 'active');
-                                });
-                                tabContent.classList.add('show', 'active');
-                            }
-                        }
+            {{-- Event Calendar --}}
+            <section class="testimonial_area section_gap">
+                <style>
+                    .testimonial_item img.rounded-circle {
+                        width: 150px;
+                        height: 150px;
+                        object-fit: cover;
+                        margin-right: 20px;
+                        border-radius: 0 !important;
+                        /* Remove border radius to make it square */
                     }
-
-                    // Save the active tab in localStorage on click
-                    var tabLinks = document.querySelectorAll('#bookingTab .nav-link');
-                    tabLinks.forEach(function(link) {
-                        link.addEventListener('click', function(e) {
-                            e.preventDefault(); // Prevent the default link behavior
-
-                            // Remove 'active' class from all tabs before adding to the clicked one
-                            tabLinks.forEach(function(tab) {
-                                tab.classList.remove('active');
-                                tab.setAttribute('aria-selected', 'false');
-                            });
-
-                            // Add 'active' class to the clicked tab
-                            link.classList.add('active');
-                            link.setAttribute('aria-selected', 'true');
-
-                            // Show the corresponding tab content
-                            var tabContentId = link.getAttribute('href');
-                            var tabContent = document.querySelector(tabContentId);
-                            var tabPanels = document.querySelectorAll('.tab-pane');
-                            tabPanels.forEach(function(panel) {
-                                panel.classList.remove('show', 'active');
-                            });
-                            if (tabContent) {
-                                tabContent.classList.add('show', 'active');
-                            }
-
-                            // Save the active tab in localStorage
-                            localStorage.setItem('activeTab', tabContentId);
-                        });
-                    });
-                });
-            </script>
-
-
-
-            <!-- Tab panes -->
-            <div class="tab-content mt-4 bg-light rounded">
-                <!-- Overview -->
-                <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-                    <!--================ Accomodation Area  =================-->
-                    <section class="accomodation_area section_gap">
-                        <div class="container">
-                            <div class="section_title text-center">
-                                <h2 class="title_color">Resort Accommodation</h2>
-                                {{-- <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
-                                    fast,</p> --}}
-                            </div>
-                            <style>
-                                .row1 {
-                                    display: -ms-flexbox;
-                                    display: flex;
-                                    -ms-flex-wrap: wrap;
-                                    flex-wrap: wrap;
-                                    margin-right: -15px;
-                                    margin-left: -15px;
-                                    flex-direction: row;
-                                    justify-content: center;
-                                    align-content: stretch;
-                                }
-                            </style>
-                            <div class="row1 mb_30 room-slider">
-                                @foreach ($rooms as $room)
-                                    @if ($room->status !== 'offline')
-                                        <!-- Check if room status is not 'offline' -->
-                                        <div class="col-lg-3 col-sm-6 room-item">
-                                            <div class="accomodation_item text-center">
-                                                <!-- Initialize Owl Carousel for individual room images -->
-                                                <div class="owl-carousel hotel_img">
-                                                    @foreach ($room->images as $image)
-                                                        <div>
-                                                            <img src="{{ asset('storage/images/' . $image->path) }}"
-                                                                alt="Room Image">
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                                <a href="#">
-                                                    <h4 class="sec_h4">{{ $room->name }}</h4>
-                                                </a>
-                                                <p>{{ $room->description }}</p>
-                                                <h5>
-                                                    ₱{{ $room->price }}<small>/night</small></h5>
-                                                <a href="{{ route('room.book', $room->id) }}"
-                                                    class="btn theme_btn button_hover">Book Now</a>
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-
-                        </div>
-                    </section>
-                    <!--================ Accomodation  End Area  =================-->
-                    <!--================ Event Area =================-->
-                    <section class="facilities_area section_gap">
-                        <div class="container">
-                            <div class="section_title text-center">
-                                <h2 style="color: white">Event</h2>
-                            </div>
-
-                            @if ($events->isEmpty())
-                                <div class="row mb-5">
-                                    <div class="col-md-12 text-center">
-                                        <h3 class="text-white">No events available</h3>
-                                    </div>
-                                </div>
-                            @else
-                                @foreach ($events as $event)
-                                    <div class="row mb-5">
-                                        <div class="col-md-6 d-flex align-items-center">
-                                            <div class="about_content">
-                                                <h2 class="title title_color text-white">{{ $event->event_name }}</h2>
-                                                <p class="text-white">
-                                                    {{ $event->description ?? 'No description available' }}
-                                                </p>
-
-                                                @if ($event->discount)
-                                                    <h4 class="text-white">
-
-                                                        ₱{{ number_format($event->price, 2) }}
-                                                        <span>{{ $event->discount }}% off</span>
-                                                    </h4>
-                                                @else
-                                                    <h4 class="text-white">
-                                                        ₱{{ number_format($event->price, 2) }}</h4>
-                                                @endif
-
-                                                <p class="text-white">
-                                                    From: {{ $event->event_start->format('M d, Y') }} to
-                                                    {{ $event->event_end->format('M d, Y') }}
-                                                </p>
-
-                                                <a href="{{ route('register.event', $event->id) }}"
-                                                    class="button_hover theme_btn_two">Book Now</a>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="hotel_img owl-carousel owl-theme">
-                                                @foreach ($event->eventImages as $image)
-                                                    <div class="item">
-                                                        <img class="img-fluid" style="width: 100%; height: 486px;"
-                                                            src="{{ asset('storage/images/' . $image->path) }}"
-                                                            alt="{{ $event->event_name ?? 'Event Image' }}">
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
-                    </section>
-
-
-                    <!--================ Event Area End =================-->
-                    <section class="accomodation_area section_gap">
-                        <div class="container">
-                            <div class="section_title text-center">
-                                <h2 class="title_color">Menus</h2>
-                                {{-- <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
-                                    fast,</p> --}}
-                            </div>
-
-                            <!-- Loop through each category -->
-                            @foreach ($categories as $category)
-                                <!-- Check if the category has any menus in its subcategories -->
-                                @php
-                                    $hasMenus = false;
-                                    foreach ($category->subcategories as $subcategory) {
-                                        if ($subcategory->menus->isNotEmpty()) {
-                                            $hasMenus = true;
-                                            break;
-                                        }
-                                    }
-                                @endphp
-
-                                @if ($hasMenus)
-                                    <div class="text-center">
-                                        <h2>{{ $category->name }}</h2> <!-- Display Category Name -->
-                                    </div>
-
-                                    <!-- Loop through each subcategory -->
-                                    @foreach ($category->subcategories as $subcategory)
-                                        <!-- Check if the subcategory has any menus -->
-                                        @if ($subcategory->menus->isNotEmpty())
-                                            <h3>{{ $subcategory->name }}</h3> <!-- Display SubCategory Name -->
-
-                                            <div class="row accomodation_two">
-                                                <!-- Loop through each menu under the subcategory -->
-                                                @foreach ($subcategory->menus as $menu)
-                                                    <div class="col-lg-3 col-sm-6">
-                                                        <div class="accomodation_item text-center">
-                                                            <div class="hotel_img">
-                                                                @if ($menu->images->first())
-                                                                    <img src="{{ asset('storage/images/' . $menu->images->first()->path) }}"
-                                                                        alt="Menu Image"> <!-- Display Menu Image -->
-                                                                @else
-                                                                    <img src="{{ asset('storage/default.jpg') }}"
-                                                                        alt="Default Image"> <!-- Default Image -->
-                                                                @endif
-                                                                {{-- <a href="#" class="btn theme_btn button_hover"
-                                                                    style="padding:5px 17px;">Reserve Now</a> --}}
-                                                            </div>
-
-                                                            <h4 class="sec_h4">{{ $menu->name }}</h4>
-                                                            <!-- Menu Name -->
-                                                            <p>{{ $menu->description }}</p>
-                                                            <h5>
-                                                                ₱{{ $menu->price }}<small></small></h5>
-                                                            <!-- Menu Price -->
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            @endforeach
-                        </div>
-                    </section>
-
-                    {{-- Timeline Section --}}
+                </style>
+                <div class="container">
                     <div class="section_title text-center">
-                        <h2 class="title_color">Timeline</h2>
+                        <h2 class="title_color">Event Calendar</h2>
                     </div>
-                    <div class="container py-4">
-                        @if ($posts->isNotEmpty())
-                            @foreach ($posts->take(8) as $post)
-                                <!-- Limit to latest 8 posts -->
-                                <!-- Post Card -->
-                                <div class="card shadow-sm mb-4 mx-auto" style="max-width: 70%; border:none;">
-                                    <div class="card-body">
-                                        <!-- User Info with Three-Dot Menu -->
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <div class="d-flex align-items-center">
-                                                <img src="{{ asset('images/lake-sebu.jpg') }}" alt="User Avatar"
-                                                    class="rounded-circle" style="width: 40px; height: 40px;">
-                                                <div class="ms-2">
-                                                    <h6 class="mb-0">{{ $user->name }}</h6>
-                                                    <small class="text-muted d-flex align-items-center">
-                                                        <i class="far fa-clock me-1"></i>
-                                                        Posted {{ $post->created_at->diffForHumans() }}
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- Post Content -->
-                                        <a href="{{ route('viewpost', $post->id) }}"
-                                            class="text-decoration-none text-dark">
-                                            <p class="mb-3">{{ $post->content }}</p>
+                    <div class="testimonial_slider owl-carousel">
+                        @foreach ($events as $event)
+                            <div class="media testimonial_item">
+                                <img class="rounded-circle"
+                                    src="{{ $event->images->first() ? asset('storage/images/' . $event->images->first()->path) : asset('default.jpg') }}"
+                                    alt="{{ $event->name }}">
+                                <div class="media-body">
 
-                                            <!-- Post Images -->
-                                            <div class="row g-3">
-                                                @if ($post->files->count() == 1)
-                                                    <!-- One Media -->
-                                                    <div class="col-12">
-                                                        @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                            <video controls class="w-100 rounded" style="height: auto;">
-                                                                <source
-                                                                    src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                    type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
-                                                                Your browser does not support the video tag.
-                                                            </video>
-                                                        @else
-                                                            <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                alt="Post Image" class="img-fluid rounded w-100">
-                                                        @endif
-                                                    </div>
-                                                @elseif ($post->files->count() == 2)
-                                                    <!-- Two Media -->
-                                                    @foreach ($post->files as $file)
-                                                        <div class="col-6">
-                                                            <div class="media-container">
-                                                                @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                    <video controls class="rounded"
-                                                                        style="width: 100%; height: 100%; object-fit: cover;">
-                                                                        <source
-                                                                            src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                            type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
-                                                                        Your browser does not support the video tag.
-                                                                    </video>
-                                                                @else
-                                                                    <img src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                        alt="Post Image" class="img-fluid rounded w-100"
-                                                                        style="height: 100%; object-fit: cover;">
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                @elseif ($post->files->count() == 3)
-                                                    <!-- Three Media -->
-                                                    <div class="col-8">
-                                                        <div class="media-container">
-                                                            @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                <video controls class="rounded"
-                                                                    style="width: 100%; height: 100%; object-fit: cover;">
-                                                                    <source
-                                                                        src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                        type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
-                                                                    Your browser does not support the video tag.
-                                                                </video>
-                                                            @else
-                                                                <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                    alt="Post Image" class="img-fluid rounded w-100"
-                                                                    style="height: 100%; object-fit: cover;">
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-4 d-flex flex-column justify-content-between">
-                                                        @foreach ($post->files->slice(1) as $file)
-                                                            <div class="media-container mb-2">
-                                                                @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                    <video controls class="rounded"
-                                                                        style="width: 100%; height: 100%; object-fit: cover;">
-                                                                        <source
-                                                                            src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                            type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
-                                                                        Your browser does not support the video tag.
-                                                                    </video>
-                                                                @else
-                                                                    <img src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                        alt="Post Image" class="img-fluid rounded w-100"
-                                                                        style="height: 100%; object-fit: cover;">
-                                                                @endif
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                @elseif ($post->files->count() >= 4)
-                                                    <!-- Four or More Media -->
-                                                    <div class="col-12">
-                                                        <div class="media-container" style="height: 300px;">
-                                                            @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                <video controls class="rounded"
-                                                                    style="width: 100%; height: 100%; object-fit: cover;">
-                                                                    <source
-                                                                        src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                        type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
-                                                                    Your browser does not support the video tag.
-                                                                </video>
-                                                            @else
-                                                                <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                    alt="Post Image" class="img-fluid rounded w-100"
-                                                                    style="height: 100%; object-fit: cover;">
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="row g-3 justify-content-center"
-                                                        style="margin-top: 10px; margin-left: 1px;">
-                                                        @foreach ($post->files->slice(1, 3) as $key => $file)
-                                                            <div
-                                                                class="col-4 position-relative d-flex justify-content-center">
-                                                                <div class="media-container"
-                                                                    style="height: 200px; width: 100%;">
-                                                                    @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                        <video controls class="rounded"
-                                                                            style="width: 100%; height: 100%; object-fit: cover;">
-                                                                            <source
-                                                                                src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                                type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
-                                                                            Your browser does not support the video tag.
-                                                                        </video>
-                                                                    @else
-                                                                        <img src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                            alt="Post Image"
-                                                                            class="img-fluid rounded w-100"
-                                                                            style="height: 100%; object-fit: cover;">
-                                                                    @endif
-
-                                                                    @if ($loop->last && $post->files->count() > 4)
-                                                                        <div
-                                                                            class="overlay d-flex align-items-center justify-content-center">
-                                                                            <span>+{{ $post->files->count() - 4 }}</span>
-                                                                        </div>
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </a>
-                                    </div>
-                                </div>
-                            @endforeach
-                        @else
-                            <p class="text-center text-muted">No posts available.</p>
-                        @endif
-                    </div>
-
-                    <!--================ Testimonial Area  =================-->
-                    <div class="comments-area">
-                        <h4>{{ $reviews->total() }} Review{{ $reviews->total() > 1 ? 's' : '' }}</h4>
-                        @foreach ($reviews as $review)
-                            <div class="comment-list left-padding {{ $loop->index > 0 ? '' : '' }}">
-                                <div class="single-comment justify-content-between d-flex">
-                                    <div class="user justify-content-between d-flex">
-                                        <div class="thumb">
-                                            <img style="width: 50px; height: 50px;"
-                                                src="{{ optional($review->user->userInfo)->profilePath ? asset('storage/images/' . $review->user->userInfo->profilePath) : asset('images/default-avatar.png') }}"
-                                                alt="User Image">
-                                        </div>
-                                        <div class="desc">
-                                            <h5><a href="#">{{ $review->user->name }}</a></h5>
-                                            <p class="date">{{ $review->created_at->format('F j, Y \a\t g:i a') }}</p>
-                                            <p class="comment">
-                                                {{ $review->review }}
-                                            </p>
-                                            <div class="star">
-                                                @for ($i = 1; $i <= 5; $i++)
-                                                    @if ($i <= $review->rating)
-                                                        <a href="#"><i class="fa fa-star text-warning"></i></a>
-                                                        <!-- Yellow-filled star -->
-                                                    @else
-                                                        <a href="#"><i class="fa fa-star-o"></i></a>
-                                                        <!-- Empty star -->
-                                                    @endif
-                                                @endfor
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <h4 class="sec_h4">{{ $event->name }}</h4>
+                                    <p>{{ Str::limit($event->description, 100) }}</p>
+                                    <p><strong>Date:</strong>
+                                        {{ \Carbon\Carbon::parse($event->event_start)->format('F d, Y') }} -
+                                        {{ \Carbon\Carbon::parse($event->event_end)->format('F d, Y') }}</p>
                                 </div>
                             </div>
                         @endforeach
-
-                        <!-- Pagination Links -->
-                        <nav class="blog-pagination justify-content-center d-flex">
-                            {{ $reviews->links('pagination::bootstrap-4') }}
-                        </nav>
                     </div>
 
-
-                    <!--================ Testimonial Area  =================-->
-
+                    <!-- Navigation Buttons -->
+                    <div class="owl-nav">
+                        <div class="owl-prev">prev</div>
+                        <div class="owl-next">next</div>
+                    </div>
+                    <div class="owl-dots"></div>
                 </div>
+            </section>
 
+            <section class="about_history_area section_gap">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="about_content">
+                                <h2 class="title title_color mb-4">About Lake Sebu</h2>
+                                <div class="about_text">
+                                    <p class="mb-4">
+                                        Lake Sebu is a natural lake located in the municipality of Lake Sebu, South
+                                        Cotabato, Philippines.
+                                        It is one of the major tourist destinations in South Cotabato known for its serene
+                                        waters,
+                                        rich biodiversity, and the home of the T'boli indigenous people.
+                                    </p>
 
-
-                <!-- Room -->
-                <div class="tab-pane fade" id="room" role="tabpanel" aria-labelledby="room-tab">
-                    <!--================ Accomodation Area  =================-->
-                    <section class="accomodation_area section_gap">
-                        <div class="container">
-                            <div class="section_title text-center">
-                                <h2 class="title_color">Resort Accommodation</h2>
-                                {{-- <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
-                                    fast,</p> --}}
-                            </div>
-                            <style>
-                                .row1 {
-                                    display: -ms-flexbox;
-                                    display: flex;
-                                    -ms-flex-wrap: wrap;
-                                    flex-wrap: wrap;
-                                    margin-right: -15px;
-                                    margin-left: -15px;
-                                    flex-direction: row;
-                                    justify-content: center;
-                                    align-content: stretch;
-                                }
-                            </style>
-                            <div class="row1 mb_30 room-slider">
-                                @foreach ($rooms as $room)
-                                    @if ($room->status !== 'offline')
-                                        <!-- Check if room status is not 'offline' -->
-                                        <div class="col-lg-3 col-sm-6 room-item">
-                                            <div class="accomodation_item text-center">
-                                                <!-- Initialize Owl Carousel for individual room images -->
-                                                <div class="owl-carousel hotel_img">
-                                                    @foreach ($room->images as $image)
-                                                        <div>
-                                                            <img src="{{ asset('storage/images/' . $image->path) }}"
-                                                                alt="Room Image">
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                                <a href="#">
-                                                    <h4 class="sec_h4">{{ $room->name }}</h4>
-                                                </a>
-                                                <p>{{ $room->description }}</p>
-                                                <h5>
-                                                    ₱{{ $room->price }}<small>/night</small></h5>
-                                                <a href="{{ route('room.book', $room->id) }}"
-                                                    class="btn theme_btn button_hover">Book Now</a>
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-
-                        </div>
-                    </section>
-                    <!--================ Accomodation Area  =================-->
-
-                </div>
-
-
-
-                <!-- Event -->
-                <div class="tab-pane fade" id="event" role="tabpanel" aria-labelledby="event-tab">
-                    <!--================ Event Area =================-->
-                    <section class="facilities_area section_gap">
-                        <div class="container">
-                            <div class="section_title text-center">
-                                <h2 style="color: white">Event</h2>
-                            </div>
-
-                            @if ($events->isEmpty())
-                                <div class="row mb-5">
-                                    <div class="col-md-12 text-center">
-                                        <h3 class="text-white">No events available</h3>
-                                    </div>
                                 </div>
-                            @else
-                                @foreach ($events as $event)
-                                    <div class="row mb-5">
-                                        <div class="col-md-6 d-flex align-items-center">
-                                            <div class="about_content">
-                                                <h2 class="title title_color text-white">{{ $event->event_name }}</h2>
-                                                <p class="text-white">
-                                                    {{ $event->description ?? 'No description available' }}
-                                                </p>
-
-                                                @if ($event->discount)
-                                                    <h4 class="text-white">
-
-                                                        ₱{{ number_format($event->price, 2) }}
-                                                        <span>{{ $event->discount }}% off</span>
-                                                    </h4>
-                                                @else
-                                                    <h4 class="text-white">
-                                                        ₱{{ number_format($event->price, 2) }}</h4>
-                                                @endif
-
-                                                <p class="text-white">
-                                                    From: {{ $event->event_start->format('M d, Y') }} to
-                                                    {{ $event->event_end->format('M d, Y') }}
-                                                </p>
-
-                                                <a href="{{ route('register.event', $event->id) }}"
-                                                    class="button_hover theme_btn_two">Book Now</a>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="hotel_img owl-carousel owl-theme">
-                                                @foreach ($event->eventImages as $image)
-                                                    <div class="item">
-                                                        <img class="img-fluid" style="width: 100%; height: 486px;"
-                                                            src="{{ asset('storage/images/' . $image->path) }}"
-                                                            alt="{{ $event->event_name ?? 'Event Image' }}">
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
-                    </section>
-
-
-
-
-                    <!--================ Event Area End =================-->
-                </div>
-
-
-
-                <!-- Menus -->
-                <div class="tab-pane fade" id="menus" role="tabpanel" aria-labelledby="menus-tab">
-                    <section class="accomodation_area section_gap">
-                        <div class="container">
-                            <div class="section_title text-center">
-                                <h2 class="title_color">Menus</h2>
-                                {{-- <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely
-                                    fast,</p> --}}
+                                <a href="#" class="btn btn-primary px-4 py-2 rounded-pill">Discover More</a>
                             </div>
-
-                            <!-- Loop through each category -->
-                            @foreach ($categories as $category)
-                                <!-- Check if the category has any menus in its subcategories -->
-                                @php
-                                    $hasMenus = false;
-                                    foreach ($category->subcategories as $subcategory) {
-                                        if ($subcategory->menus->isNotEmpty()) {
-                                            $hasMenus = true;
-                                            break;
-                                        }
-                                    }
-                                @endphp
-
-                                @if ($hasMenus)
-                                    <div class="text-center">
-                                        <h2>{{ $category->name }}</h2> <!-- Display Category Name -->
-                                    </div>
-
-                                    <!-- Loop through each subcategory -->
-                                    @foreach ($category->subcategories as $subcategory)
-                                        <!-- Check if the subcategory has any menus -->
-                                        @if ($subcategory->menus->isNotEmpty())
-                                            <h3>{{ $subcategory->name }}</h3> <!-- Display SubCategory Name -->
-
-                                            <div class="row accomodation_two">
-                                                <!-- Loop through each menu under the subcategory -->
-                                                @foreach ($subcategory->menus as $menu)
-                                                    <div class="col-lg-3 col-sm-6">
-                                                        <div class="accomodation_item text-center">
-                                                            <div class="hotel_img">
-                                                                @if ($menu->images->first())
-                                                                    <img src="{{ asset('storage/images/' . $menu->images->first()->path) }}"
-                                                                        alt="Menu Image"> <!-- Display Menu Image -->
-                                                                @else
-                                                                    <img src="{{ asset('storage/default.jpg') }}"
-                                                                        alt="Default Image"> <!-- Default Image -->
-                                                                @endif
-                                                                {{-- <a href="#" class="btn theme_btn button_hover"
-                                                                    style="padding:5px 17px;">Reserve Now</a> --}}
-                                                            </div>
-
-                                                            <h4 class="sec_h4">{{ $menu->name }}</h4>
-                                                            <!-- Menu Name -->
-                                                            <p>{{ $menu->description }}</p>
-                                                            <h5>
-                                                                ₱{{ $menu->price }}<small></small></h5>
-                                                            <!-- Menu Price -->
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            @endforeach
                         </div>
-                    </section>
-
+                        <div class="col-md-6">
+                            <div class="about_image position-relative">
+                                <img class="img-fluid rounded shadow-lg" src="{{ asset('images/lake-sebu.jpg') }}"
+                                    alt="Lake Sebu">
+                                <div class="image_overlay"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </section>
 
+            <style>
+                .about_history_area {
+                    padding: 80px 0;
+                    background: #fff;
+                }
 
+                .about_content .title {
+                    font-size: 2.5rem;
+                    font-weight: 700;
+                    color: #333;
+                    position: relative;
+                }
 
+                .about_text p {
+                    color: #666;
+                    line-height: 1.8;
+                    font-size: 1.1rem;
+                }
 
+                .about_text ul li {
+                    padding: 8px 0;
+                    color: #555;
+                    font-size: 1.1rem;
+                }
 
-                <!-- Review -->
-                <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
-                    <div class="comments-area">
-                        <h4>{{ $reviews->total() }} Review{{ $reviews->total() > 1 ? 's' : '' }}</h4>
-                        @foreach ($reviews as $review)
-                            <div class="comment-list left-padding {{ $loop->index > 0 ? '' : '' }}">
-                                <div class="single-comment justify-content-between d-flex">
-                                    <div class="user justify-content-between d-flex">
-                                        <div class="thumb">
-                                            <img style="width: 50px; height: 50px;"
-                                                src="{{ optional($review->user->userInfo)->profilePath ? asset('storage/images/' . $review->user->userInfo->profilePath) : asset('images/default-avatar.png') }}"
-                                                alt="User Image">
-                                        </div>
-                                        <div class="desc">
-                                            <h5><a href="#">{{ $review->user->name }}</a></h5>
-                                            <p class="date">{{ $review->created_at->format('F j, Y \a\t g:i a') }}</p>
-                                            <p class="comment">
-                                                {{ $review->review }}
-                                            </p>
-                                            <div class="star">
-                                                @for ($i = 1; $i <= 5; $i++)
-                                                    @if ($i <= $review->rating)
-                                                        <a href="#"><i class="fa fa-star text-warning"></i></a>
-                                                        <!-- Yellow-filled star -->
-                                                    @else
-                                                        <a href="#"><i class="fa fa-star-o"></i></a>
-                                                        <!-- Empty star -->
-                                                    @endif
-                                                @endfor
-                                            </div>
-                                        </div>
-                                    </div>
+                .about_image {
+                    overflow: hidden;
+                    border-radius: 8px;
+                }
+
+                .about_image img {
+                    transition: transform 0.3s ease;
+                }
+
+                .about_image:hover img {
+                    transform: scale(1.05);
+                }
+
+                .btn-primary {
+                    background: #1e4356;
+                    border: none;
+                    transition: all 0.3s ease;
+                }
+
+                .btn-primary:hover {
+                    background: #2a5f7a;
+                    transform: translateY(-2px);
+                }
+            </style>
+
+            <footer class="footer-area section_gap">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="border_line mb-4"></div>
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                <div class="footer-text mb-3 mb-md-0">
+                                    Copyright ©
+                                    <script>
+                                        document.write(new Date().getFullYear());
+                                    </script> All rights reserved
+                                </div>
+                                <div class="footer-social">
+                                    <a href="#" class="mx-2"><i class="fa fa-facebook"></i></a>
+                                    <a href="#" class="mx-2"><i class="fa fa-twitter"></i></a>
+                                    <a href="#" class="mx-2"><i class="fa fa-dribbble"></i></a>
+                                    <a href="#" class="mx-2"><i class="fa fa-behance"></i></a>
                                 </div>
                             </div>
-                        @endforeach
-
-                        <!-- Pagination Links -->
-                        <nav class="blog-pagination justify-content-center d-flex">
-                            {{ $reviews->links('pagination::bootstrap-4') }}
-                        </nav>
+                        </div>
                     </div>
                 </div>
+            </footer>
 
-                <div class="tab-pane fade" id="Timeline" role="tabpanel" aria-labelledby="timeline-tab">
-                    <div class="comments-area">
-                        <div class="section_title text-center">
-                            <h2 class="title_color">Timeline</h2>
-                        </div>
+            <style>
+                .footer-area {
+                    padding: 20px 0;
+                    background: #021b35;
+                }
 
-                        <div class="container py-4">
-                            @if ($posts->isNotEmpty())
-                                @foreach ($posts as $post)
-                                    <!-- Post Card -->
-                                    <div class="card shadow-sm mb-4 mx-auto" style="max-width: 70%;">
-                                        <div class="card-body">
-                                            <!-- User Info with Three-Dot Menu -->
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="{{ asset('images/lake-sebu.jpg') }}" alt="User Avatar"
-                                                        class="rounded-circle" style="width: 40px; height: 40px;">
-                                                    <div class="ms-2">
-                                                        <h6 class="mb-0">{{ $user->name }}</h6>
-                                                        <small class="text-muted d-flex align-items-center">
-                                                            <i class="far fa-clock me-1"></i>
-                                                            Posted {{ $post->created_at->diffForHumans() }}
-                                                        </small>
-                                                    </div>
-                                                </div>
-                                            </div>
+                .border_line {
+                    border-top: 1px solid #ddd;
+                }
 
-                                            <!-- Post Content -->
-                                            <a href="{{ route('viewpost', $post->id) }}"
-                                                class="text-decoration-none text-dark">
-                                                <p class="mb-3">{{ $post->content }}</p>
+                .footer-social a {
+                    color: #666;
+                    font-size: 18px;
+                    transition: color 0.3s ease;
+                }
 
-                                                <!-- Post Images -->
-                                                <div class="row g-3">
-                                                    @if ($post->files->count() == 1)
-                                                        <!-- One Media -->
-                                                        <div class="col-12">
-                                                            @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                <video controls class="w-100 rounded"
-                                                                    style="height: auto;">
-                                                                    <source
-                                                                        src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                        type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
-                                                                    Your browser does not support the video tag.
-                                                                </video>
-                                                            @else
-                                                                <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                    alt="Post Image" class="img-fluid rounded w-100">
-                                                            @endif
-                                                        </div>
-                                                    @elseif ($post->files->count() == 2)
-                                                        <!-- Two Media: Side by Side with Equal Heights -->
-                                                        @foreach ($post->files as $file)
-                                                            <div class="col-6">
-                                                                <div class="media-container">
-                                                                    @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                        <video controls class="rounded"
-                                                                            style="width: 100%; height: 100%; object-fit: cover;">
-                                                                            <source
-                                                                                src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                                type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
-                                                                            Your browser does not support the video tag.
-                                                                        </video>
-                                                                    @else
-                                                                        <img src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                            alt="Post Image"
-                                                                            class="img-fluid rounded w-100"
-                                                                            style="height: 100%; object-fit: cover;">
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    @elseif ($post->files->count() == 3)
-                                                        <!-- Three Media: One Large, Two Vertically Stacked -->
-                                                        <div class="col-8">
-                                                            <div class="media-container">
-                                                                @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                    <video controls class="rounded"
-                                                                        style="width: 100%; height: 100%; object-fit: cover;">
-                                                                        <source
-                                                                            src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                            type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
-                                                                        Your browser does not support the video tag.
-                                                                    </video>
-                                                                @else
-                                                                    <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                        alt="Post Image" class="img-fluid rounded w-100"
-                                                                        style="height: 100%; object-fit: cover;">
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-4 d-flex flex-column justify-content-between">
-                                                            @foreach ($post->files->slice(1) as $file)
-                                                                <div class="media-container mb-2">
-                                                                    @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                        <video controls class="rounded"
-                                                                            style="width: 100%; height: 100%; object-fit: cover;">
-                                                                            <source
-                                                                                src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                                type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
-                                                                            Your browser does not support the video tag.
-                                                                        </video>
-                                                                    @else
-                                                                        <img src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                            alt="Post Image"
-                                                                            class="img-fluid rounded w-100"
-                                                                            style="height: 100%; object-fit: cover;">
-                                                                    @endif
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    @elseif ($post->files->count() >= 4)
-                                                        <!-- Four Media: One Large on Top, Three Below with Equal Heights -->
-                                                        <div class="col-12">
-                                                            <div class="media-container" style="height: 300px;">
-                                                                <!-- Larger height for the top media -->
-                                                                @if (in_array(pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                    <video controls class="rounded"
-                                                                        style="width: 100%; height: 100%; object-fit: cover;">
-                                                                        <source
-                                                                            src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                            type="video/{{ pathinfo($post->files->first()->file_name, PATHINFO_EXTENSION) }}">
-                                                                        Your browser does not support the video tag.
-                                                                    </video>
-                                                                @else
-                                                                    <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                        alt="Post Image" class="img-fluid rounded w-100"
-                                                                        style="height: 100%; object-fit: cover;">
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                        <div class="row g-3 justify-content-center"
-                                                            style="margin-top: 10px;margin-left:1px;">
-                                                            @foreach ($post->files->slice(1, 3) as $key => $file)
-                                                                <div
-                                                                    class="col-4 position-relative d-flex justify-content-center">
-                                                                    <div class="media-container"
-                                                                        style="height: 200px; width: 100%;">
-                                                                        <!-- Adjusted height -->
-                                                                        @if (in_array(pathinfo($file->file_name, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
-                                                                            <video controls class="rounded"
-                                                                                style="width: 100%; height: 100%; object-fit: cover;">
-                                                                                <source
-                                                                                    src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                                    type="video/{{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}">
-                                                                                Your browser does not support the video tag.
-                                                                            </video>
-                                                                        @else
-                                                                            <img src="{{ asset('storage/images/' . $file->file_path) }}"
-                                                                                alt="Post Image"
-                                                                                class="img-fluid rounded w-100"
-                                                                                style="height: 100%; object-fit: cover;">
-                                                                        @endif
+                .footer-social a:hover {
+                    color: #333;
+                }
 
-                                                                        <!-- Overlay for the Last Media -->
-                                                                        @if ($loop->last && $post->files->count() > 4)
-                                                                            <div class="overlay d-flex align-items-center justify-content-center"
-                                                                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); color: white; font-size: 24px; border-radius: 8px;">
-                                                                                <span>+{{ $post->files->count() - 4 }}</span>
-                                                                            </div>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <p class="text-center text-muted">No posts available.</p>
-                            @endif
-                        </div>
+                .footer-text {
+                    color: #666;
+                }
+            </style>
 
 
-                    </div>
-                </div>
-            </div>
+
+
+
+
         </div>
     </div>
 @endsection

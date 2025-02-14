@@ -133,8 +133,7 @@
                 <a href="{{ route('resort.post') }}"
                     class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                     <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                        viewBox="0 0 20 20">
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                         <path
                             d="M17 3h-1V2a1 1 0 1 0-2 0v1H6V2a1 1 0 1 0-2 0v1H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm0 14H3V8h14v9ZM3 6V5h1v1a1 1 0 1 0 2 0V5h8v1a1 1 0 1 0 2 0V5h1v1H3Z" />
                     </svg>
@@ -146,7 +145,8 @@
                 <a href="{{ route('resort.review') }}"
                     class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                     <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        viewBox="0 0 20 20">
                         <path
                             d="M17 3h-1V2a1 1 0 1 0-2 0v1H6V2a1 1 0 1 0-2 0v1H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm0 14H3V8h14v9ZM3 6V5h1v1a1 1 0 1 0 2 0V5h8v1a1 1 0 1 0 2 0V5h1v1H3Z" />
                     </svg>
@@ -154,7 +154,7 @@
                 </a>
             </li>
 
-            <li>
+            {{-- <li>
                 <a href="#"
                     class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                     <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -165,7 +165,7 @@
                     </svg>
                     <span class="flex-1 ms-3 whitespace-nowrap">Users</span>
                 </a>
-            </li>
+            </li> --}}
 
         </ul>
     </div>

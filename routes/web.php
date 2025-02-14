@@ -2,12 +2,15 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\Admin\EventCalendarController;
 use App\Http\Controllers\FoodController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\Resort\MenuController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Resort\CategoryController;
 use App\Http\Controllers\Resort\dashboard;
+use App\Http\Controllers\Resort\DashboardController;
 use App\Http\Controllers\Resort\EventBookingController;
 use App\Http\Controllers\Resort\EventController;
 use App\Http\Controllers\Resort\ImageController;
@@ -38,7 +41,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [UserController::class, 'index']);
 
 Route::get('/accomodation', [UserController::class, 'accomodation']);
-
+Route::get('/resorts/{id}', [UserController::class, 'resort'])->name('resort.show');
 Route::get('/me/profile', [UserController::class, 'me'])->name('me.profile');
 
 Route::get('/dashboard', [ChatController::class, 'dashboard'])->middleware(['auth', 'verified', 'PreventBackHistory'])->name('dashboard');
@@ -59,6 +62,7 @@ Route::controller(SocialiteController::class)->group(function () {
     Route::get('auth/redirection/{provider}', 'authProviderRedirect')->name('auth.redirection');
     Route::get('auth/{provider}/callback', 'socialAuthentication')->name('auth.callback');
 });
+Route::get('/map/{id}', [MapController::class, 'map'])->name('map');
 
 
 //user
@@ -105,7 +109,8 @@ Route::middleware(['auth', 'role:resort', 'PreventBackHistory'])->group(function
 
     Route::get('/resort/profile', [ResortController::class, 'profile'])->name('resort.profile');
     //dashboard
-    Route::get('/resort/dashboard', [dashboard::class, 'dashboard'])->name('resort.dashboard');
+    Route::get('/resort/dashboard', [DashboardController::class, 'dashboard'])->name('resort.dashboard');
+
     //ROOM
     Route::get('/resort/room', [RoomController::class, 'room'])->name('resort.room');
 
@@ -207,4 +212,19 @@ Route::patch('/resort/changeCoverPhoto', [ProfileController::class, 'coverPhoto'
 /**------------Admin----------------- */
 Route::middleware(['auth', 'role:admin', 'PreventBackHistory'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/userlist/', [AdminController::class, 'userlist'])->name('userslist');
+
+    //tourist spots
+    Route::get('/admin/touristSpot', [AdminController::class, 'tourist'])->name('touristSpot');
+    Route::post('/touristSpots/store', [AdminController::class, 'store'])->name('touristSpots.store');
+    Route::put('/tourist_spot/update/{id}', [AdminController::class, 'update'])->name('touristSpots.update');
+    Route::delete('/image-tourist/destroy/{id}', [AdminController::class, 'imagedestroy'])->name('image-tourist.destroy');
+    Route::delete('/tourist-spots/{id}', [AdminController::class, 'destroy'])->name('tourist-spots.destroy');
+
+    //event calendar
+    Route::get('/event-calendars', [EventCalendarController::class, 'index'])->name('event_calendars');
+    Route::post('/event-calendars', [EventCalendarController::class, 'store'])->name('event_calendars.store');
+    Route::put('/event-calendars/{id}', [EventCalendarController::class, 'update'])->name('event_calendars.update');
+    Route::delete('/event-calendars/{id}', [EventCalendarController::class, 'destroy'])->name('event_calendars.destroy');
+    Route::delete('/eventicalendars/destroy/{id}', [EventCalendarController::class, 'imagedestroy'])->name('image-event.destroy');
 });

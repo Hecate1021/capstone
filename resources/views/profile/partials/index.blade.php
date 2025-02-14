@@ -93,9 +93,7 @@
                 <div class="banner_content text-center">
                     <h6></h6>
                     <h2 style="font-family: 'Alishah', cursive;">{{ $user->name }}</h2>
-                    <p style="font-size:20px;">
-                        {{ $user->userInfo->description ?? '' }}
-                    </p>
+                    <p style="font-size:20px;">"{{ $user->userInfo->description }}"</p>
                     <!-- Ratings -->
                     <div class="rating-container">
                         <div class="stars" style="--rating: {{ $averageRating ?? 0 }};">
@@ -105,7 +103,7 @@
                     </div>
 
                     <div>
-                        <a href="{{ route('map', $user->id) }}" class="btn theme_btn button_hover">See Location</a>
+                        <a href="{{ route('balai') }}" class="btn theme_btn button_hover">Get Started</a>
                     </div>
                 </div>
             </div>
@@ -962,8 +960,7 @@
                                                                 </video>
                                                             @else
                                                                 <img src="{{ asset('storage/images/' . $post->files->first()->file_path) }}"
-                                                                    alt="Post Image" class="img-fluid rounded"
-                                                                    style="width: 75%; max-width: 400px; display: block; margin: 0 auto;">
+                                                                    alt="Post Image" class="img-fluid rounded w-100">
                                                             @endif
                                                         </div>
                                                     @elseif ($post->files->count() == 2)

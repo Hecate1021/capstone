@@ -4,7 +4,7 @@
         <nav class="flex justify-between items-center">
             <!-- Brand -->
             <a href="{{ url('/') }}" class="text-xl font-bold">
-                <img src="{{ asset('images/balai-logo.jpg') }}" alt="Logo" class="h-10">
+                <img src="{{ asset('images/SebuSavvy.png') }}" alt="Logo" class="h-10">
             </a>
 
             <!-- Navigation Links and User Icon -->

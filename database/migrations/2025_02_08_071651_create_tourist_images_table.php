@@ -11,20 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subcategories', function (Blueprint $table) {
+        Schema::create('tourist_images', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->foreignId('resort_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('tourist_id')->nullable();
+            $table->string('image'); // Image filename
+            $table->string('path');  // Full image path
             $table->timestamps();
+            $table->foreign('tourist_id')->references('id')->on('tourists')->onDelete('cascade');
         });
     }
+
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('subcategories');
+        Schema::dropIfExists('tourist_images');
     }
 };

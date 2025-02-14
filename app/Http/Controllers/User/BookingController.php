@@ -62,12 +62,17 @@ class BookingController extends Controller
         // Check for overlapping bookings
         $overlappingBooking = Booking::where('room_id', $request->room_id)
             ->where(function ($query) use ($checkInDate, $checkOutDate) {
-                $query->whereBetween('check_in_date', [$checkInDate, $checkOutDate])
-                    ->orWhereBetween('check_out_date', [$checkInDate, $checkOutDate])
-                    ->orWhereRaw('? BETWEEN check_in_date AND check_out_date', [$checkInDate])
-                    ->orWhereRaw('? BETWEEN check_in_date AND check_out_date', [$checkOutDate]);
+                $query->whereBetween('check_in_date', [$checkInDate, $checkOutDate]) // New check-in falls within existing booking
+                    ->orWhereBetween('check_out_date', [$checkInDate, $checkOutDate]) // New check-out falls within existing booking
+                    ->orWhere(function ($query) use ($checkInDate, $checkOutDate) {
+                        $query->where('check_in_date', '<', $checkInDate)
+                            ->where('check_out_date', '>', $checkOutDate); // New booking is completely inside an existing booking
+                    });
             })
+            ->where('check_out_date', '!=', $checkInDate) // ✅ Allows check-in on same check-out date
             ->exists();
+
+
 
         if ($overlappingBooking) {
             return redirect()->back()->withErrors(['check_in_date' => 'The room is already booked for the selected dates.'])->withInput();
@@ -332,8 +337,14 @@ class BookingController extends Controller
     }
     public function calendar()
     {
-        // Fetch all bookings from the current month onwards
+        $user = Auth::user();
+        $resortId = $user->id; // The resort_id is the same as the user id
+
+        // Fetch only bookings from the current month onwards for the logged-in resort
         $bookings = Booking::with('user', 'room')
+            ->whereHas('room', function ($query) use ($resortId) {
+                $query->where('user_id', $resortId);
+            })
             ->where('check_in_date', '>=', now()->startOfMonth())
             ->get();
 
@@ -356,6 +367,7 @@ class BookingController extends Controller
 
         return view('resort.booking.calendar', compact('formattedBookings', 'bookings'));
     }
+
 
 
     public function getEvents()

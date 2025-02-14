@@ -10,11 +10,7 @@ class EventImages extends Model
     use HasFactory;
     protected $fillable = ['events_id', 'image', 'path'];
 
-    // Define the inverse relationship
-    // public function event()
-    // {
-    //     return $this->belongsTo(Events::class);
-    // }
+
     public function event()
     {
         return $this->belongsTo(Events::class, 'events_id');

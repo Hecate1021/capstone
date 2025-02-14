@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('resort_id')->constrained('users')->onDelete('cascade');
-            $table->string('name');
-            $table->timestamps();
+        Schema::table('user_infos', function (Blueprint $table) {
+            $table->decimal('latitude', 10, 7)->nullable()->after('coverPath');
+            $table->decimal('longitude', 10, 7)->nullable()->after('latitude');
         });
     }
 
@@ -24,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categories');
+        Schema::table('user_infos', function (Blueprint $table) {
+            $table->dropColumn(['latitude', 'longitude']);
+        });
     }
 };
