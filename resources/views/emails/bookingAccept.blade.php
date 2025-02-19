@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +16,7 @@
             align-items: center;
             height: 100vh;
         }
+
         .container {
             background-color: white;
             padding: 30px;
@@ -22,6 +24,7 @@
             max-width: 600px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         h2 {
             text-align: center;
             font-size: 24px;
@@ -29,51 +32,63 @@
             font-weight: bold;
             color: #34a853;
         }
+
         .top-right-link {
             text-align: right;
             margin-bottom: 20px;
         }
+
         .top-right-link a {
             color: #1a73e8;
             text-decoration: none;
             font-size: 12px;
         }
+
         .info-section {
             border-top: 1px solid #dcdcdc;
             padding-top: 20px;
         }
+
         .info-section div {
             display: flex;
             justify-content: space-between;
             margin-bottom: 12px;
         }
+
         .info-section div span {
             font-size: 14px;
         }
+
         .info-section div span:first-child {
             font-weight: bold;
         }
+
         .text-center {
             text-align: center;
         }
+
         .text-center p {
             color: #666;
             font-size: 14px;
         }
+
         .text-center .note {
             font-size: 12px;
             color: #999;
             margin-top: 10px;
         }
+
         .cancel-link {
             text-align: center;
             margin-top: 30px;
         }
+
         .cancel-link a {
             color: #1a73e8;
             text-decoration: none;
             font-size: 14px;
         }
+
         .btn-green {
             background-color: #34a853;
             color: white;
@@ -86,11 +101,13 @@
             text-decoration: none;
             font-weight: bold;
         }
+
         .btn-green:hover {
             background-color: #2b8b3d;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="top-right-link"></div>
@@ -126,15 +143,13 @@
                 <span>Check-Out Date:</span>
                 <span>{{ \Carbon\Carbon::parse($booking->check_out_date)->format('d M Y') }}</span>
             </div>
-            <div>
-                <span>Resort:</span>
-                <span>Sa Balai Lake View Resort</span>
-            </div>
+
         </div>
 
         <div class="text-center">
             <p>Your booking has been accepted! We’re looking forward to hosting you at Sa Balai Lake View Resort.</p>
-            <p class="note">(Please note: You should hear back from us within 5 hours. If you haven't received a confirmation, please contact our customer support team at 0800 5677 241.)</p>
+            <p class="note">(Please note: You should hear back from us within 5 hours. If you haven't received a
+                confirmation, please contact our customer support team at 0800 5677 241.)</p>
         </div>
 
         <div class="cancel-link">
@@ -142,4 +157,5 @@
         </div>
     </div>
 </body>
+
 </html>

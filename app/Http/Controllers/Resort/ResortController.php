@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Resort;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Post;
+use App\Models\ResortAvailability;
 use App\Models\Review;
 use App\Models\Room;
 use Illuminate\Http\Request;
@@ -112,5 +113,41 @@ class ResortController extends Controller
     {
         $rooms = Room::all();
         return view('resort.booking.addBooking', compact('rooms'));
+    }
+
+    public function availability()
+    {
+
+        return view('resort.availability');
+    }
+
+    public function availabilityStore(Request $request)
+    {
+        $resortId = Auth::id(); // Get logged-in user ID as resort_id
+
+        foreach ($request->availability as $day => $times) {
+            ResortAvailability::updateOrCreate(
+                ['resort_id' => $resortId, 'day' => $day],
+                [
+                    'opening_time' => !empty($times['opening_time']) ? $times['opening_time'] : null,
+                    'closing_time' => !empty($times['closing_time']) ? $times['closing_time'] : null
+                ]
+            );
+        }
+
+        return redirect()->back()->with('success', 'Availability updated successfully.');
+    }
+
+    public function getAvailability($resortId)
+    {
+        $availability = ResortAvailability::where('resort_id', $resortId)->get()->map(function ($item) {
+            return [
+                'day' => $item->day,
+                'opening_time' => $item->opening_time ?? null, // NULL if empty
+                'closing_time' => $item->closing_time ?? null,
+            ];
+        });
+
+        return response()->json($availability);
     }
 }

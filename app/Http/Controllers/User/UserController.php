@@ -23,13 +23,16 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
 use Laravel\Socialite\Facades\Socialite;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
+
+
     public function index()
     {
-        // Fetch resorts with user info
-        $resorts = User::with('userInfo')
+        // Fetch resorts with user info and availability
+        $resorts = User::with('userInfo', 'availability')  // Assuming 'availability' relationship exists
             ->where('role', 'resort')
             ->get()
             ->map(function ($resort) {
@@ -37,8 +40,18 @@ class UserController extends Controller
                 $resort->averageRating = round(Review::where('resort_id', $resort->id)->avg('rating'), 1) ?? 0;
                 $resort->image = $resort->userInfo?->profilePath ?? 'default.jpg';
 
+                // Format the availability data to AM/PM time format
+                $resort->availability = $resort->availability->mapWithKeys(function ($availability) {
+                    return [$availability->day => [
+                        'opening_time' => $availability->opening_time ? Carbon::parse($availability->opening_time)->format('g:i A') : 'Closed',
+                        'closing_time' => $availability->closing_time ? Carbon::parse($availability->closing_time)->format('g:i A') : 'Closed',
+                    ]];
+                });
+
+
                 return $resort;
             });
+
         $events = EventCalendar::with('images')->get();
 
         $authUserId = auth()->id(); // Get the logged-in user's ID
@@ -70,11 +83,13 @@ class UserController extends Controller
             $users = collect();
             $totalUnreadMessages = 0;
         }
+
         // Fetch tourist spots with images
         $touristSpots = Tourist::with('images')->get();
 
         return view('index', compact('resorts', 'events', 'touristSpots', 'totalUnreadMessages', 'users'));
     }
+
 
 
 
@@ -345,5 +360,10 @@ class UserController extends Controller
     public function me()
     {
         return view('mobileview.profile');
+    }
+
+    public function home()
+    {
+        return view('index');
     }
 }

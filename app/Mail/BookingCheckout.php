@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
@@ -32,11 +33,11 @@ class BookingCheckout extends Mailable
     public function build()
     {
         return $this->from($this->resortOwner->email) // Set the sender's email to the resort owner's email
-                    ->subject('Checkout Confirmation - Thank You for Staying With Us')
-                    ->view('emails.booking_checkout')
-                    ->with([
-                        'booking' => $this->booking,
-                        'resortOwner' => $this->resortOwner,
-                    ]);
+            ->subject('Checkout Confirmation - Thank You for Staying With Us')
+            ->view('emails.booking_checkout')
+            ->with([
+                'booking' => $this->booking,
+                'resortOwner' => $this->resortOwner,
+            ]);
     }
 }

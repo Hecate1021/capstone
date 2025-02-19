@@ -71,11 +71,17 @@ class DashboardController extends Controller
             ->orderBy(DB::raw('MONTH(bookings.created_at)'))
             ->get();
 
-        $monthlyRatings = DB::table('reviews')
-            ->select(DB::raw('MONTHNAME(created_at) as month'), DB::raw('AVG(rating) as average_rating'))
-            ->groupBy('month')
-            ->orderBy(DB::raw('MONTH(created_at)'))
+        $weeklyRatings = DB::table('reviews')
+            ->whereNotNull('rating') // Ensure only reviews with ratings are considered
+            ->select(
+                DB::raw('YEARWEEK(created_at, 1) as week'), // Group by year and week number
+                DB::raw('AVG(rating) as average_rating'),
+                DB::raw('COUNT(*) as total_reviews') // Count the number of reviews per week
+            )
+            ->groupBy('week')
+            ->orderBy('week')
             ->get();
+
 
 
         return view('resort.dashboard', compact(
@@ -89,7 +95,7 @@ class DashboardController extends Controller
             'monthlyBookings',
             'weeklyBookings',
             'dailyBookings',
-            'monthlyRatings'
+            'weeklyRatings'
         ));
     }
 }

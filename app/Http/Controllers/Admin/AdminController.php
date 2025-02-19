@@ -25,6 +25,7 @@ class AdminController extends Controller
             ->withAvg('reviews', 'rating')
             ->get(['id', 'name']);
 
+
         // Paginate resorts and users (10 per page)
         $resorts = User::where('role', 'resort')->paginate(10);
         $users = User::where('role', 'user')->paginate(10);
@@ -170,9 +171,29 @@ class AdminController extends Controller
     public function userlist()
     {
         $users = User::where('email', 'like', '%@gmail.com')
-            ->where('role', '!=', 'admin') // Exclude admin role
+            ->where('role', 'user') // Filter only users with role 'user'
             ->get(['name', 'email', 'role', 'email_verified_at']);
 
         return view('admin.userlists', compact('users'));
+    }
+
+
+    public function resortlist()
+    {
+        $resorts = User::where('role', 'resort')
+            ->leftJoin('user_infos', 'users.id', '=', 'user_infos.user_id')
+            ->leftJoin('reviews', 'users.id', '=', 'reviews.resort_id')
+            ->select(
+                'users.id',
+                'users.name',
+                'users.email',
+                'user_infos.contactNo',
+                'user_infos.address',
+                \DB::raw('COALESCE(AVG(reviews.rating), 0) as avg_rating')
+            )
+            ->groupBy('users.id', 'users.name', 'users.email', 'user_infos.contactNo', 'user_infos.address')
+            ->get();
+
+        return view('admin.resortlist', compact('resorts'));
     }
 }

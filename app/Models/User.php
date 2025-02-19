@@ -59,17 +59,20 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Room::class);
     }
+
     public function reviews()
     {
-        return $this->hasMany(Review::class);
+        return $this->hasMany(Review::class, 'resort_id');
     }
+
     public function messages()
     {
         return $this->hasMany(Message::class, 'sender_id')
-                    ->orWhere('receiver_id', $this->id);
+            ->orWhere('receiver_id', $this->id);
     }
-
-
-
-
+    // In the User model (or Resort model if it exists separately)
+    public function availability()
+    {
+        return $this->hasMany(ResortAvailability::class, 'resort_id', 'id');  // Adjust based on your database schema
+    }
 }

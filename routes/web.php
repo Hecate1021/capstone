@@ -68,7 +68,7 @@ Route::get('/map/{id}', [MapController::class, 'map'])->name('map');
 //user
 Route::middleware(['auth', 'PreventBackHistory', 'verified'])->group(function () {
 
-
+    Route::get('/home/', [userController::class, 'home'])->name('home');
 
     Route::get('/balai-resort', [UserController::class, 'balai'])->name('balai');
 
@@ -197,6 +197,12 @@ Route::middleware(['auth', 'role:resort', 'PreventBackHistory'])->group(function
 
     //review
     Route::get('/review', [ResortReviewController::class, 'index'])->name('resort.review');
+
+    Route::get('/availability', [ResortController::class, 'availability'])->name('resort.availability');
+    Route::post('/resort/availability/store', [ResortController::class, 'availabilityStore'])
+        ->name('resort.availability.store');
+    Route::get('/resort/availability/{resortId}', [ResortController::class, 'getAvailability'])
+        ->name('resort.availability.get');
 });
 
 //IMAGE FilePond
@@ -227,4 +233,6 @@ Route::middleware(['auth', 'role:admin', 'PreventBackHistory'])->group(function 
     Route::put('/event-calendars/{id}', [EventCalendarController::class, 'update'])->name('event_calendars.update');
     Route::delete('/event-calendars/{id}', [EventCalendarController::class, 'destroy'])->name('event_calendars.destroy');
     Route::delete('/eventicalendars/destroy/{id}', [EventCalendarController::class, 'imagedestroy'])->name('image-event.destroy');
+    //resort list
+    Route::get('/admin/resortlist/', [AdminController::class, 'resortlist'])->name('resortlist');
 });

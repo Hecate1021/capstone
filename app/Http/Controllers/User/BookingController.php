@@ -26,14 +26,31 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
     public function booking($id)
     {
         $room = Room::findOrFail($id);
-        return view('user.booking', compact('room'));
+        $bookings = Booking::where('room_id', $id)->get(['room_id', 'check_in_date', 'check_out_date']);
+
+        // Colors for event differentiation
+        $colors = ['#60A5FA', '#34D399', '#F87171', '#FBBF24', '#A78BFA'];
+
+        $formattedBookings = $bookings->map(function ($booking, $index) use ($colors, $room) {
+            return [
+                'room_name' => $room->name,
+                'check_in_date' => $booking->check_in_date,
+                'check_out_date' => $booking->check_out_date,
+                'color' => $colors[$index % count($colors)],
+            ];
+        });
+
+        return view('user.booking', compact('room', 'formattedBookings'));
     }
+
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

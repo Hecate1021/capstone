@@ -27,24 +27,7 @@
                     </div>
                 </div>
                 <!-- Card -->
-                <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-                    <div class="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-                            Account balance
-                        </p>
-                        <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                            ₱ {{ number_format($totalPayment, 2) }} <!-- Format the number to 2 decimal places -->
-                        </p>
-                    </div>
 
-                </div>
                 <!-- Card -->
                 <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
                     <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
@@ -103,17 +86,19 @@
                     </div>
 
                 </div>
+                @include('resort.availability')
             </div>
             <h3 class="mb-4 mt-10 font-semibold text-gray-800 dark:text-gray-300">Room Bookings</h3>
             <!-- Charts Container -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Monthly Ratings Line Chart -->
+                <!-- Weekly Ratings Line Chart -->
                 <div class="bg-white rounded-lg shadow-xs dark:bg-gray-800 p-4">
-                    <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Average Rating Per Month</h4>
+                    <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Average Rating Per Week</h4>
                     <div style="position: relative; height: 300px;">
-                        <canvas id="monthlyRatingsChart"></canvas>
+                        <canvas id="weeklyRatingsChart"></canvas>
                     </div>
                 </div>
+
 
                 <!-- Weekly Bookings Pie Chart -->
                 <div class="bg-white rounded-lg shadow-xs dark:bg-gray-800">
@@ -133,131 +118,131 @@
             </div>
 
 
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    document.addEventListener("DOMContentLoaded", function() {
-                        const ctx = document.getElementById('monthlyRatingsChart').getContext('2d');
+                    const ctx = document.getElementById('weeklyRatingsChart').getContext('2d');
 
-                        // Monthly Ratings Data (from Laravel)
-                        const monthlyRatings = @json($monthlyRatings);
+                    // Weekly Ratings Data (from Laravel)
+                    const weeklyRatings = @json($weeklyRatings);
 
-                        const months = monthlyRatings.map(item => item.month);
-                        const ratings = monthlyRatings.map(item => item.average_rating);
+                    // Extract weeks and ratings
+                    const weeks = weeklyRatings.map(item => `Week ${item.week}`); // Convert week numbers to readable labels
+                    const ratings = weeklyRatings.map(item => item.average_rating);
 
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: months,
-                                datasets: [{
-                                    label: 'Average Rating',
-                                    data: ratings,
-                                    borderColor: 'rgba(54, 162, 235, 1)',
-                                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                    borderWidth: 2,
-                                    fill: true,
-                                    tension: 0.3
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        max: 5,
-                                        title: {
-                                            display: true,
-                                            text: 'Rating (0 - 5)'
-                                        }
-                                    },
-                                    x: {
-                                        title: {
-                                            display: true,
-                                            text: 'Months'
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    });
-
-                    // Weekly Bookings Pie Chart
-                    const weeklyCtx = document.getElementById('weeklyPieChart').getContext('2d');
-                    const weeklyLabels = {!! json_encode($weeklyBookings->pluck('week')) !!};
-                    const weeklyData = {!! json_encode($weeklyBookings->pluck('bookings')) !!};
-                    new Chart(weeklyCtx, {
-                        type: 'pie',
-                        data: {
-                            labels: weeklyLabels.map(week => `Week ${week}`),
-                            datasets: [{
-                                data: weeklyData,
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.6)',
-                                    'rgba(54, 162, 235, 0.6)',
-                                    'rgba(255, 206, 86, 0.6)',
-                                    'rgba(75, 192, 192, 0.6)',
-                                    'rgba(153, 102, 255, 0.6)',
-                                ]
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'right'
-                                }
-                            }
-                        }
-                    });
-
-                    // Monthly Bookings Line Chart
-                    const monthlyCtx = document.getElementById('monthlyLineChart').getContext('2d');
-                    const monthlyLabels = {!! json_encode($monthlyBookings->pluck('month')) !!};
-                    const monthlyData = {!! json_encode($monthlyBookings->pluck('bookings')) !!};
-                    new Chart(monthlyCtx, {
+                    new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: monthlyLabels,
+                            labels: weeks,
                             datasets: [{
-                                label: 'Monthly Bookings',
-                                data: monthlyData,
+                                label: 'Average Rating',
+                                data: ratings,
                                 borderColor: 'rgba(54, 162, 235, 1)',
                                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                                 borderWidth: 2,
-                                tension: 0.3,
-                                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-                                pointRadius: 4
+                                fill: true,
+                                tension: 0.3
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
                             scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 5,
+                                    title: {
+                                        display: true,
+                                        text: 'Rating (0 - 5)'
+                                    }
+                                },
                                 x: {
                                     title: {
                                         display: true,
-                                        text: 'Month'
-                                    }
-                                },
-                                y: {
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Bookings'
-                                    },
-                                    ticks: {
-                                        stepSize: 1, // Ensure only whole numbers are displayed
-                                        callback: function(value) {
-                                            return Number.isInteger(value) ? value :
-                                                null; // Display only whole numbers
-                                        }
+                                        text: 'Weeks'
                                     }
                                 }
                             }
                         }
                     });
+                });
+
+                // Weekly Bookings Pie Chart
+                const weeklyCtx = document.getElementById('weeklyPieChart').getContext('2d');
+                const weeklyLabels = {!! json_encode($weeklyBookings->pluck('week')) !!};
+                const weeklyData = {!! json_encode($weeklyBookings->pluck('bookings')) !!};
+                new Chart(weeklyCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: weeklyLabels.map(week => `Week ${week}`),
+                        datasets: [{
+                            data: weeklyData,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(153, 102, 255, 0.6)',
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+
+                // Monthly Bookings Line Chart
+                const monthlyCtx = document.getElementById('monthlyLineChart').getContext('2d');
+                const monthlyLabels = {!! json_encode($monthlyBookings->pluck('month')) !!};
+                const monthlyData = {!! json_encode($monthlyBookings->pluck('bookings')) !!};
+                new Chart(monthlyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: monthlyLabels,
+                        datasets: [{
+                            label: 'Monthly Bookings',
+                            data: monthlyData,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Month'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Bookings'
+                                },
+                                ticks: {
+                                    stepSize: 1, // Ensure only whole numbers are displayed
+                                    callback: function(value) {
+                                        return Number.isInteger(value) ? value :
+                                            null; // Display only whole numbers
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
             </script>
 

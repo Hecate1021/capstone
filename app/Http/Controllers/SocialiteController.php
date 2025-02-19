@@ -19,33 +19,32 @@ class SocialiteController extends Controller
         abort(404);
     }
 
-   public function socialAuthentication($provider)
+    public function socialAuthentication($provider)
     {
-    try {
-        if ($provider) {
-            $socialUser = Socialite::driver($provider)->user();
-            $user = User::where('auth_provider_id', $socialUser->id)->first();
+        try {
+            if ($provider) {
+                $socialUser = Socialite::driver($provider)->user();
+                $user = User::where('auth_provider_id', $socialUser->id)->first();
 
-            if (!$user) {
-                $user = User::create([
-                    'name' => $socialUser->name,
-                    'email' => $socialUser->email,
-                    'password' => Hash::make('Password@1234'),
-                    'auth_provider_id' => $socialUser->id,
-                    'auth_provider' => $provider,
-                ]);
+                if (!$user) {
+                    $user = User::create([
+                        'name' => $socialUser->name,
+                        'email' => $socialUser->email,
+                        'password' => Hash::make('Password@1234'),
+                        'auth_provider_id' => $socialUser->id,
+                        'auth_provider' => $provider,
+                    ]);
+                }
+
+                Auth::login($user);
+
+
+                return redirect()->route('home')->with('success', 'You have been successfully logged in!');
             }
 
-            Auth::login($user);
-
-            return redirect()->route('balai');
+            return redirect()->route('login')->with('error', 'Invalid provider!');
+        } catch (\Exception $e) {
+            return redirect()->route('login')->with('error', 'Authentication failed. Please try again.');
         }
-
-        return redirect()->route('login')->with('error', 'Invalid provider!');
-    } catch (\Exception $e) {
-        return redirect()->route('login')->with('error', 'Authentication failed. Please try again.');
     }
-}
-
-
 }

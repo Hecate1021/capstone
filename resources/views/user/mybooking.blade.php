@@ -658,7 +658,7 @@
                                                 Leave a Review
                                             </button>
                                             <a href="{{ route('chat', $booking->resort->id) }}"
-                                                class="btn btn-outline-secondary">Contact Seller</a>
+                                                class="btn btn-outline-secondary">Contact Resort</a>
                                         @else
                                             <span class=" text-success">
                                                 Thank you for Feedback

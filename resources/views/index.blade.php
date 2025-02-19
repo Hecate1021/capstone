@@ -337,21 +337,114 @@
                                     <h5>
                                         @for ($i = 1; $i <= 5; $i++)
                                             @if ($i <= $resort->averageRating)
-                                                <!-- Use averageRating instead of rating -->
                                                 <i class="fa fa-star text-warning"></i>
                                             @else
                                                 <i class="fa fa-star text-secondary"></i>
                                             @endif
                                         @endfor
                                         ({{ $resort->averageRating }})
-                                        <!-- Use averageRating here as well -->
                                     </h5>
+
+                                    <!-- Availability popup -->
+                                    <div class="availability">
+                                        <button class="btn btn-info availability-btn" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#availabilityModal{{ $resort->id }}">
+                                            Check Availability
+                                        </button>
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="availabilityModal{{ $resort->id }}" tabindex="-1"
+                                        aria-labelledby="availabilityModalLabel{{ $resort->id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="availabilityModalLabel{{ $resort->id }}">
+                                                        {{ $resort->name }} - Operating Hours</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="availability-schedule">
+                                                        @foreach ($resort->availability as $day => $times)
+                                                            <div class="schedule-row">
+                                                                <strong class="day">{{ $day }}</strong>
+                                                                <span class="hours">
+                                                                    <span
+                                                                        class="{{ $times['opening_time'] == 'Closed' ? 'text-danger' : '' }}">
+                                                                        {{ $times['opening_time'] }}
+                                                                    </span> -
+                                                                    <span
+                                                                        class="{{ $times['closing_time'] == 'Closed' ? 'text-danger' : '' }}">
+                                                                        {{ $times['closing_time'] }}
+                                                                    </span>
+                                                                </span>
+
+
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 </div>
+
+                <style>
+                    .availability-btn {
+                        margin-top: 10px;
+                        padding: 8px 20px;
+                        border-radius: 20px;
+                        background-color: #17a2b8;
+                        border: none;
+                        font-size: 14px;
+                        transition: all 0.3s ease;
+                    }
+
+                    .availability-btn:hover {
+                        background-color: #138496;
+                        transform: translateY(-2px);
+                    }
+
+                    .availability-schedule {
+                        padding: 10px;
+                    }
+
+                    .schedule-row {
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 8px 0;
+                        border-bottom: 1px solid #eee;
+                    }
+
+                    .schedule-row:last-child {
+                        border-bottom: none;
+                    }
+
+                    .day {
+                        color: #333;
+                        min-width: 100px;
+                    }
+
+                    .hours {
+                        color: #666;
+                    }
+
+                    .modal-content {
+                        border-radius: 15px;
+                    }
+
+                    .modal-header {
+                        background-color: #f8f9fa;
+                        border-radius: 15px 15px 0 0;
+                    }
+                </style>
             </section>
+
 
 
             <section class="facilities_area section_gap">
